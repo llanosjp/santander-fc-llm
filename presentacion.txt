@@ -1,0 +1,283 @@
+====================================================
+  ASISTENTE COMERCIAL CON INTELIGENCIA ARTIFICIAL
+  Consultas de KPIs en tiempo real por WhatsApp
+  Hackathon Interna de IA — Abril 2026
+====================================================
+
+
+════════════════════════════════════════
+LÁMINA 1 — PORTADA
+════════════════════════════════════════
+Título: Asistente Comercial con Inteligencia Artificial
+Subtítulo: Consultas de KPIs en tiempo real por WhatsApp
+Detalle: Hackathon Interna de IA — [Tu nombre] — [Área] — Abril 2026
+
+
+════════════════════════════════════════
+LÁMINA 2 — EL PROBLEMA
+════════════════════════════════════════
+Título: ¿Cuánto tiempo perdemos buscando datos?
+
+- Los ejecutivos comerciales necesitan datos para tomar decisiones
+- Hoy dependen de reportes, sistemas internos y analistas
+- Eso genera demoras, fricción y decisiones tardías
+- Pregunta clave: ¿Y si pudieran preguntar como le preguntan a una persona?
+
+
+════════════════════════════════════════
+LÁMINA 3 — LA SOLUCIÓN
+════════════════════════════════════════
+Título: Un asistente que habla tu idioma
+
+- Conversás con él por WhatsApp — sin apps, sin capacitación
+- Le preguntás en español natural: "¿Cómo vamos este mes?"
+- Él consulta los datos reales y responde en segundos
+- También genera gráficas directamente en el chat
+
+
+════════════════════════════════════════
+LÁMINA 4 — ¿QUÉ ES UN LLM? (para no técnicos)
+════════════════════════════════════════
+Título: ¿Qué hay detrás del asistente?
+
+Imaginá un empleado que leyó millones de documentos,
+entiende cualquier pregunta en español, y puede consultar
+sistemas internos para responderte.
+
+Eso es un LLM — Large Language Model.
+
+- No memoriza respuestas — las construye en el momento
+- Entiende contexto, sinónimos y lenguaje coloquial
+- GPT-4o es el modelo más avanzado de OpenAI (el mismo detrás de ChatGPT)
+- Nosotros lo conectamos a los datos reales de Santander
+
+
+════════════════════════════════════════
+LÁMINA 5 — ARQUITECTURA
+════════════════════════════════════════
+Título: ¿Cómo llega la respuesta al celular?
+
+Crea un diagrama de flujo vertical con estas 6 etapas:
+
+Etapa 1: Ejecutivo Comercial
+El ejecutivo escribe una pregunta por WhatsApp
+
+Etapa 2: WhatsApp (Meta)
+Recibe el mensaje y lo entrega al servidor
+
+Etapa 3: Servidor (FastAPI)
+Recibe el mensaje y coordina el proceso
+
+Etapa 4: GPT-4o (OpenAI)
+Entiende la pregunta y decide qué datos necesita.
+Se conecta a la API de Santander para obtener datos reales.
+
+Etapa 5: Respuesta generada
+GPT-4o redacta la respuesta en español o genera una gráfica
+
+Etapa 6: Ejecutivo Comercial
+Recibe la respuesta en WhatsApp en segundos
+
+Notas al costado del diagrama:
+- El ejecutivo nunca sale de WhatsApp
+- GPT-4o decide solo qué datos necesita consultar
+- La API de Santander ya existía — no se modificó
+
+
+════════════════════════════════════════
+LÁMINA 6 — SEGURIDAD POR CAPAS
+════════════════════════════════════════
+Título: GPT-4o nunca toca la base de datos
+
+Crea un diagrama de 3 capas horizontales apiladas (de arriba a abajo):
+
+CAPA EXTERNA — IA (GPT-4o)
+Solo habla con funciones controladas.
+No tiene acceso directo a ningún sistema interno.
+
+CAPA INTERMEDIA — API Santander
+Expone solo los datos que decide exponer.
+Actúa como filtro y guardián de la información.
+
+CAPA INTERNA — Base de Datos Santander
+Nunca es accedida directamente por la IA.
+Protegida detrás de la API.
+
+Nota importante en la lámina:
+"GPT-4o no conoce la estructura de la base de datos,
+no puede hacer consultas directas, no puede modificar nada.
+Solo puede llamar a funciones específicas que nosotros definimos."
+
+Por qué esto importa:
+- La IA no puede filtrar datos que no le permitamos
+- Si la IA es comprometida, la BD sigue protegida
+- Cumple con estándares de seguridad bancaria
+
+
+════════════════════════════════════════
+LÁMINA 7 — FUNCTION CALLING (cómo piensa el agente)
+════════════════════════════════════════
+Título: ¿Cómo sabe el agente qué datos consultar?
+
+La magia está en una técnica llamada "Function Calling":
+
+EJEMPLO — el ejecutivo escribe:
+"¿Cómo van los jefes comerciales este mes?"
+
+EL AGENTE PIENSA:
+  1. Entiendo que preguntan por jefes comerciales
+  2. Tengo una herramienta llamada get_kpi_por_jefe
+  3. El período es el mes actual: 202604
+  4. Llamo a la API con esos parámetros
+  5. Recibo los datos reales
+  6. Genero una respuesta clara en español
+
+HERRAMIENTAS DISPONIBLES:
+  → get_kpi_total        : KPIs globales del mes
+  → get_kpi_por_canal    : Desglose por canal de venta
+  → get_kpi_por_lider    : Ranking de líderes de equipo
+  → get_kpi_por_jefe     : Ranking de jefes comerciales
+  → get_chart_jefes      : Gráfica de líneas por jefe
+  → get_chart_lideres    : Gráfica de líneas por líder
+  → get_chart_yoy        : Comparativa año vs año vs año
+
+El agente elige la herramienta correcta según lo que el
+usuario pregunta — sin que el usuario sepa que existen.
+
+
+════════════════════════════════════════
+LÁMINA 8 — DEMO EN VIVO
+════════════════════════════════════════
+Título: Veámoslo funcionar
+
+(Pausar láminas — hacer demo desde el celular)
+
+ORDEN DE LA DEMO:
+  1. "¿Cómo vamos en colocaciones este mes?"
+     → Respuesta con KPIs totales
+
+  2. "¿Qué canal tuvo mayor colocación este mes?"
+     → Desglose por canal
+
+  3. "¿Cómo está el ranking de jefes comerciales?"
+     → Ranking con formato limpio
+
+  4. "Dame una gráfica comparativa 2024 vs 2025 vs 2026"
+     → PNG directo en WhatsApp (el WOW de la demo)
+
+  5. "¿Cuánto creció marzo 2026 vs marzo 2025?"
+     → Comparativa en lenguaje natural
+
+
+════════════════════════════════════════
+LÁMINA 9 — LO QUE YA ESTÁ CONSTRUIDO
+════════════════════════════════════════
+Título: MVP funcional — desarrollado como iniciativa propia
+
+✅ Agente conversacional con GPT-4o (Function Calling)
+✅ Integración oficial WhatsApp Cloud API (Meta)
+✅ Consultas por total, canal, líder y jefe comercial
+✅ Gráficas de líneas automáticas por WhatsApp
+✅ Gráfica Year-over-Year (comparativa multi-año)
+✅ Historial de conversaciones persistido por usuario
+✅ Multi-usuario simultáneo (sesión independiente por número)
+✅ Preparado para deploy en producción (DigitalOcean)
+
+Desarrollado de forma independiente como iniciativa propia.
+
+
+════════════════════════════════════════
+LÁMINA 10 — ROADMAP
+════════════════════════════════════════
+Título: ¿A dónde va esto?
+
+FASE 1 — MVP          ✅ HOY
+  Agente + WhatsApp + KPIs + Gráficas
+
+FASE 2 — Producción   🔲 2 semanas
+  Deploy en DigitalOcean, URL fija, estable 24/7
+
+FASE 3 — Más datos    🔲 1 mes
+  Más dimensiones, más KPIs, más áreas del banco
+
+FASE 4 — Proactivo    🔲 2 meses
+  Alertas automáticas cuando un KPI cae o supera meta
+
+FASE 5 — Escala       🔲 Q3 2026
+  Expansión a otras áreas del banco
+
+
+════════════════════════════════════════
+LÁMINA 11 — EL IMPACTO
+════════════════════════════════════════
+Título: ¿Por qué esto importa para Santander?
+
+📱 CERO FRICCIÓN
+   El ejecutivo usa el WhatsApp que ya tiene en su celular
+
+⚡ RESPUESTA EN SEGUNDOS
+   No en horas ni días — en el momento que lo necesita
+
+🔒 SEGURO
+   API oficial de Meta, datos internos no salen del banco
+
+📈 ESCALABLE
+   De 1 usuario a toda la fuerza comercial sin cambios
+
+💰 BAJO COSTO
+   Infraestructura mínima, sin licencias costosas
+
+
+════════════════════════════════════════
+LÁMINA 12 — CIERRE
+════════════════════════════════════════
+Título: El área de IA necesita gente que ya esté haciendo IA
+
+"Este proyecto no es un ejercicio académico.
+Es un sistema funcional, conectado a datos reales de Santander,
+que hoy mismo puede usar un ejecutivo comercial desde su celular."
+
+"Lo construí solo, fuera del horario de trabajo, porque creo
+que la IA puede transformar cómo operamos. Si el área de IA
+busca personas que ya estén haciendo esto — acá estoy."
+
+PREGUNTAS PARA ABRIR CONVERSACIÓN:
+  → ¿Qué otras áreas se beneficiarían de esto?
+  → ¿Qué KPIs le agregarías?
+  → ¿Qué problema de tu área resolvería un asistente así?
+
+
+====================================================
+CÓMO USAR ESTE CONTENIDO EN GAMMA.APP
+====================================================
+1. Entrá a gamma.app
+2. Click en "Create new" → "Paste in text"
+3. Pegá todo este contenido
+4. Seleccioná un tema corporativo (azul funciona bien)
+5. Gamma genera las láminas automáticamente
+6. Ajustá el diagrama de arquitectura manualmente
+7. Agregá el logo de Santander en la portada
+
+
+====================================================
+GUIÓN DE LA DEMO — ORDEN EXACTO
+====================================================
+1. Láminas 1-3 → planteás problema y solución (2 min)
+2. Demo en vivo desde el celular — Lámina 8 (5 min)
+3. Láminas 5-7 → arquitectura, seguridad y function calling (3 min)
+4. Láminas 9-12 → qué hay, roadmap, impacto, cierre (3 min)
+
+REGLAS DE ORO:
+  → Mostrá desde tu celular, no desde la pantalla del laptop
+  → No expliques cómo funciona hasta que te pregunten
+  → Si algo falla: "interesante, lo revisamos después" y seguí
+  → Primero el valor, después la tecnología
+  → VOS sos el protagonista, no el proyecto
+
+
+====================================================
+FRASE FINAL QUE TIENE QUE QUEDAR EN SU CABEZA
+====================================================
+"Este chico ya está haciendo lo que el área de IA
+va a necesitar hacer."
+====================================================

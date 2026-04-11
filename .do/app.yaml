@@ -1,0 +1,45 @@
+name: santander-fc-llm
+region: nyc
+
+services:
+  - name: agent-webhook
+    # Conecta al repo de GitHub — cambiá el branch si usás otro
+    github:
+      repo: TU_USUARIO/santander-fc-llm   # ← cambiá esto
+      branch: main
+      deploy_on_push: true
+
+    run_command: uvicorn server:app --host 0.0.0.0 --port $PORT
+
+    # Plan mínimo — suficiente para este workload
+    instance_size_slug: basic-xxs
+    instance_count: 1
+
+    # Health check — DO App Platform lo usa para saber si el pod está vivo
+    health_check:
+      http_path: /health
+
+    # Variables de entorno — los valores se configuran en el Dashboard de DO,
+    # no se hardcodean aquí (nunca subir secretos a git).
+    envs:
+      - key: SANTANDER_API_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: OPENAI_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: MODEL
+        scope: RUN_TIME
+        value: gpt-4o
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: WHATSAPP_ACCESS_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+      - key: WHATSAPP_VERIFY_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+      - key: WHATSAPP_API_VERSION
+        scope: RUN_TIME
+        value: v19.0

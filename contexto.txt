@@ -1,0 +1,68 @@
+CONTEXTO DEL PROYECTO — Santander Function Calling LLM
+=======================================================
+Fecha: 2026-03-14
+
+QUÉ SE ESTÁ CONSTRUYENDO
+--------------------------
+Un agente conversacional que responde preguntas de KPIs comerciales bancarios
+en lenguaje natural, usando Function Calling con GPT-4o.
+El agente consulta una API REST de Santander (banking) ya existente.
+NO toca la BD directamente — solo consume la API como cliente HTTP.
+
+REPOSITORIOS DE REFERENCIA (en C:\Users\JEAN PIERRE\Documents\2026\OTROS\)
+----------------------------------------------------------------------------
+- sales-agent/        → agente básico con datos mock (referencia simple)
+- sales-agent-pro/    → agente con observabilidad, retry y config centralizada (referencia avanzada)
+- api_retail/         → API FastAPI de ejemplo con datos retail (referencia de arquitectura)
+- santander-fc-llm/   → EL PROYECTO ACTUAL (estructura creada, archivos vacíos)
+
+ARQUITECTURA DECIDIDA
+----------------------
+API Santander Banking (ya existe, no se modifica)
+        │  HTTP (requests.get)
+        ▼
+santander-fc-llm/ (agente — lo que se está construyendo)
+        │  Lenguaje natural
+        ▼
+Usuario: "¿Cuánto fue la colocación de créditos este mes?"
+
+ESTRUCTURA DEL PROYECTO (archivos creados, aún vacíos)
+-------------------------------------------------------
+santander-fc-llm/
+├── main.py           → CLI: recibe pregunta del usuario
+├── agent.py          → loop de function calling con GPT-4o
+├── config.py         → URL de la API, modelo, timeouts, API key
+├── observability.py  → métricas: latencia, tokens, costo por turno
+├── tools/
+│   ├── __init__.py
+│   ├── schemas.py    → JSON schemas que el LLM lee para elegir tools
+│   ├── handlers.py   → funciones que llaman a la API Santander
+│   └── registry.py   → mapea nombre_tool → función en handlers
+├── .env.example      → plantilla de variables de entorno
+└── requirements.txt  → openai, requests, python-dotenv
+
+ORDEN DE IMPLEMENTACIÓN (próxima sesión)
+-----------------------------------------
+1. config.py
+2. tools/schemas.py
+3. tools/handlers.py
+4. tools/registry.py
+5. agent.py
+6. main.py
+
+PENDIENTE — EL USUARIO DEBE TRAER ESTO MAÑANA
+-----------------------------------------------
+- Documentación de la API Santander (Swagger, Postman, PDF)
+- Lista de KPIs que necesita consultar el agente
+  (ejemplos: colocaciones, mora, captaciones, NPS, clientes nuevos)
+- Tipo de autenticación de la API (token, OAuth, API key)
+- URL de la API (localhost o staging)
+
+DECISIONES TÉCNICAS TOMADAS
+-----------------------------
+- LLM: GPT-4o (OpenAI)
+- El agente NO escribe SQL directo
+- El agente NO hereda código de api_retail
+- Patrón: tools/schemas.py separa definición de tools de su implementación
+- Patrón: tools/registry.py mapea nombre (string del LLM) → función Python
+- Referencia de implementación madura: sales-agent-pro/agent.py
