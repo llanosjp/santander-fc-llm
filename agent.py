@@ -115,10 +115,10 @@ REGLAS MANDATORIAS del diagnóstico (SIEMPRE calcular):
    Solo di "Funnel saludable" si TODAS las conversiones están por encima de los umbrales.
 
 3. **Da recomendación ESPECÍFICA y ACCIONABLE para CADA cuello de botella detectado**:
-   - Si Conv_evaluacion <50%: "⚠️ Cuello de botella: Evaluación ({X}% conversión)\n→ {pendientes} solicitudes sin evaluar — empújalas con riesgos"
-   - Si Conv_aprobacion <70%: "⚠️ Cuello de botella: Aprobación ({X}% conversión)\n→ Tasa baja — enfócate en clientes con mejor score"
-   - Si Conv_documentacion <90%: "⚠️ Cuello de botella: Documentación ({X}% conversión)\n→ {pendientes} aprobados sin docs — acelera seguimiento"
-   - Si Conv_desembolso <80%: "🚨 URGENTE: Desembolso ({X}% conversión)\n→ {pendientes} créditos LISTOS para desembolsar — ciérralos YA"
+   - Si Conv_evaluacion <50%: "⚠️ Cuello de botella: Evaluación ({{conversión}}%)\n→ {{pendientes}} solicitudes sin evaluar — empújalas con riesgos"
+   - Si Conv_aprobacion <70%: "⚠️ Cuello de botella: Aprobación ({{conversión}}%)\n→ Tasa baja — enfócate en clientes con mejor score"
+   - Si Conv_documentacion <90%: "⚠️ Cuello de botella: Documentación ({{conversión}}%)\n→ {{pendientes}} aprobados sin docs — acelera seguimiento"
+   - Si Conv_desembolso <80%: "🚨 URGENTE: Desembolso ({{conversión}}%)\n→ {{pendientes}} créditos LISTOS para desembolsar — ciérralos YA"
    
    IMPORTANTE: Si hay documentados pendientes (DOCUMENTADOS > DESEMBOLSADO), esto es MÁXIMA PRIORIDAD porque son créditos ya ganados que solo necesitan ejecución.
 
