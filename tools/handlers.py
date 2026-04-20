@@ -455,11 +455,29 @@ def generate_chart_yoy(anio_from: int, anio_to: int) -> str:
         return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
 
 
+def _get_months_in_range(periodo_from: int, periodo_to: int) -> list[int]:
+    """Retorna lista de meses en el rango [periodo_from, periodo_to]."""
+    meses = []
+    p = periodo_from
+    while p <= periodo_to:
+        meses.append(p)
+        year, month = p // 100, p % 100
+        month += 1
+        if month > 12:
+            month = 1
+            year += 1
+        p = year * 100 + month
+    return meses
+
+
 def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
     """
     Gráfica de líneas de colocaciones personales del ejecutivo.
     Muestra la evolución mes a mes de SUS créditos desembolsados.
     Usa matplotlib con spline interpolation para líneas suaves.
+    
+    NOTA: La API de Power Automate tiene un bug - cuando filtra por usuario
+    y rango de fechas, solo devuelve 1 mes. Por eso llamamos mes por mes.
     """
     from scipy.interpolate import make_interp_spline
     import numpy as np
@@ -468,30 +486,35 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
     
     config = _get_config()
     
-    # Llamar API con filtro del usuario actual
-    raw = _call_api("TOTAL", periodo_from, periodo_to, phone=_current_phone)
+    # Obtener lista de meses a consultar
+    meses = _get_months_in_range(periodo_from, periodo_to)
     
-    try:
-        data = json.loads(raw)
-    except json.JSONDecodeError:
-        return json.dumps({"error": "No se pudo parsear la respuesta de la API."})
+    # La API tiene bug: solo devuelve 1 mes con filtro de rango+usuario
+    # Solución: llamar API mes por mes y combinar resultados
+    all_registros = []
     
-    if isinstance(data, dict) and "error" in data:
-        return raw
+    for mes in meses:
+        raw = _call_api("TOTAL", mes, mes, phone=_current_phone)
+        try:
+            data = json.loads(raw)
+            if isinstance(data, dict) and "data" in data:
+                all_registros.extend(data["data"])
+            elif isinstance(data, list):
+                all_registros.extend(data)
+        except (json.JSONDecodeError, TypeError):
+            continue
     
-    registros = data.get("data", []) if isinstance(data, dict) else data
-    
-    if not registros:
+if not all_registros:
         return json.dumps({"error": "No hay datos para el período solicitado."})
     
     # Obtener nombre del usuario
-    nombre_usuario = registros[0].get("ORI_DES_EJECUTIVO", "Ejecutivo")
+    nombre_usuario = all_registros[0].get("ORI_DES_EJECUTIVO", "Ejecutivo")
     
     # Extraer períodos y créditos
     periodos = []
     creditos = []
     
-    for row in registros:
+    for row in all_registros:
         periodo = int(row.get("PERIODO") or 0)
         nro_creditos = int(row.get("DESEMBOLSADO") or row.get("NRO_CREDITOS") or 0)
         
