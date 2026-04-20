@@ -377,7 +377,7 @@ def generate_chart_yoy(anio_from: int, anio_to: int) -> str:
         return json.dumps({"error": "No hay datos para los años solicitados."})
 
     meses_labels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
-    colores_years = ["#3498db", "#e74c3c", "#2ecc71", "#9b59b6", "#f39c12"]
+    colores_years = ["#DA291C", "#E31837", "#8B0000", "#FF6B6B", "#B71C1C"]  # Santander reds
     
     x = np.arange(12)  # 12 meses
 
@@ -548,13 +548,13 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
                 y=creditos,
                 mode='lines',
                 name=nombre_usuario,
-                line=dict(shape='spline', smoothing=1.3, color='#3498db', width=4),
+                line=dict(shape='spline', smoothing=1.3, color='#DA291C', width=4),
                 hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
             ))
         except Exception:
             fig.add_trace(go.Scatter(
                 x=periodo_labels, y=creditos, mode='lines',
-                name=nombre_usuario, line=dict(color='#3498db', width=4),
+                name=nombre_usuario, line=dict(color='#DA291C', width=4),
                 hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
             ))
 
@@ -584,7 +584,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
         y=creditos,
         mode='markers',
         name=nombre_usuario,
-        marker=dict(size=12, color='#3498db', symbol='circle', line=dict(width=2, color='white')),
+        marker=dict(size=12, color='#DA291C', symbol='circle', line=dict(width=2, color='white')),
     ))
 
     # Layout profesional (igual a las otras gráficas)
@@ -691,7 +691,7 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
         return json.dumps({"error": "No hay datos para comparar."})
 
     meses_labels = ["Ene", "Feb", "Mar", "Abr"]
-    colores_years = ["#3498db", "#e74c3c"]  # Azul para 2025, Rojo para 2026
+    colores_years = ["#DA291C", "#1A1A1A"]  # Santander: rojo 2025, negro 2026
     
     x = np.arange(4)  # 4 meses
 
