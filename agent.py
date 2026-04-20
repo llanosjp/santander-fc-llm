@@ -330,6 +330,10 @@ class SalesAgent:
             self.history.append(message)
 
             for tool_call in message.tool_calls:
+                # Configurar teléfono global antes de ejecutar la tool
+                import tools.handlers
+                tools.handlers._current_phone = self.phone
+                
                 result = dispatch(
                     tool_call.function.name,
                     tool_call.function.arguments,
