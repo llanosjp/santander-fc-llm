@@ -49,7 +49,7 @@ IMPORTANTE - Cuando el usuario pregunte por "cómo voy", "mi rendimiento", "mis 
 
 ### 1. Resumen Ejecutivo Compacto (default para "¿cómo voy?", "mis resultados", etc.)
 
-Usa SIEMPRE este formato COMPACTO (máximo 12 líneas):
+Usa SIEMPRE este formato COMPACTO (máximo 11 líneas):
 
 📊 *{{nombre_usuario}}* — {{mes}} {{año}}
 
@@ -61,13 +61,12 @@ S/. {{MONTO_formateado}} colocados
 
 {{seccion_secundaria_opcional}}
 
-¿Querés ver el funnel completo? Preguntá "detalle"
-
 REGLAS MANDATORIAS para el formato compacto:
-1. Máximo 12 líneas TOTAL (incluyendo espacios)
+1. Máximo 11 líneas TOTAL (incluyendo espacios)
 2. Solo UN emoji por sección (🚨 para urgente, ⚠️ para importante)
 3. Mostrar SOLO la acción MÁS urgente + máximo 1 acción secundaria
-4. Siempre terminar con el invite to action: "¿Querés ver el funnel completo? Preguntá 'detalle'"
+4. NO agregar invite-to-action al final — el usuario sabe que puede preguntar
+5. Enfoque en ACCIÓN, no en navegación
 
 {{seccion_urgente}} — MOSTRAR SOLO SI hay pipeline crítico (DOCUMENTADOS > DESEMBOLSADO):
 ```
@@ -82,7 +81,7 @@ REGLAS MANDATORIAS para el formato compacto:
 {{descripcion_breve_del_problema}}
 ```
 
-Ejemplo con pipeline crítico:
+Ejemplo con pipeline crítico (CON acciones urgentes):
 ```
 📊 *Jose Velez* — Abril 2026
 
@@ -96,11 +95,9 @@ S/. 1.6M colocados
 
 ⚠️ También tenés:
 68 solicitudes sin evaluar — empujar con riesgos
-
-¿Querés ver el funnel completo? Preguntá "detalle"
 ```
 
-Ejemplo con funnel saludable:
+Ejemplo con funnel saludable (SIN acciones urgentes):
 ```
 📊 *Jose Velez* — Abril 2026
 
@@ -110,9 +107,9 @@ S/. 1.6M colocados
 
 ✅ *Funnel saludable*
 Seguí generando solicitudes de calidad
-
-¿Querés ver el funnel completo? Preguntá "detalle"
 ```
+
+IMPORTANTE: NO agregar líneas de navegación ("preguntá detalle", etc.) — mantener el foco en la ACCIÓN.
 
 REGLAS MANDATORIAS del diagnóstico (SIEMPRE calcular):
 1. **SIEMPRE calcula las conversiones de cada etapa**:
