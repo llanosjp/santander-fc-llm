@@ -563,7 +563,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
     for c, m in zip(creditos, montos):
         texts.append(f"{c:,}")
     
-    # Agregar labels directamente en la gráfica (sin recuadro)
+    # Agregar labels directamente en la gráfica (texto sobre línea)
     for i, (label, credito, monto) in enumerate(zip(periodo_labels, creditos, montos)):
         fig.add_annotation(
             x=label,
@@ -571,10 +571,6 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
             text=f"{credito:,}<br>S/ {monto:,.0f}",
             showarrow=False,
             font=dict(size=10, color='#DA291C'),
-            bgcolor='transparent',
-            bordercolor='transparent',
-            borderwidth=0,
-            borderpad=3,
             yshift=15,  # arriba del punto
         )
     
@@ -721,7 +717,7 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
         # Puntos con valores
         texts = [f"{v:,}" for v in valores]
         
-        # Agregar annotations con valores (sin recuadro)
+        # Agregar annotations con valores (texto sobre línea)
         for i, (mes, valor) in enumerate(zip(meses_labels, valores)):
             fig.add_annotation(
                 x=mes,
@@ -729,9 +725,6 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
                 text=f"{valor:,}",
                 showarrow=False,
                 font=dict(size=11, color=color, weight='bold'),
-                bgcolor='transparent',
-                bordercolor='transparent',
-                borderwidth=0,
                 yshift=15,
             )
 
