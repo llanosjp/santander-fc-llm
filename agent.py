@@ -48,10 +48,14 @@ Reglas:
 
 
 class SalesAgent:
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, phone: str = None):
         self.client = OpenAI(api_key=config.openai_api_key)
         self.config = config
+        self.phone = phone  # Teléfono del usuario para filtrar datos
         self.history: list[dict] = [{"role": "system", "content": _build_system_prompt()}]
+        # Guardar phone globalmente para usar en las tools
+        global _current_phone
+        _current_phone = phone
 
     def chat(self, user_message: str) -> str:
         self.history.append({"role": "user", "content": user_message})

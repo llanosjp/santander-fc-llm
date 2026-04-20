@@ -45,7 +45,7 @@ class SessionStore:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(serializable, f, ensure_ascii=False, indent=2)
 
-    def get_or_create(self, phone: str) -> SalesAgent:
+    def get_or_create(self, phone: str, phone: str = None) -> SalesAgent:
         """
         Retorna el SalesAgent activo para el número dado.
 
@@ -64,7 +64,7 @@ class SessionStore:
             # Sesión expirada — la reemplazamos
             del self._sessions[phone]
 
-        new_agent = SalesAgent(self._config)
+        new_agent = SalesAgent(self._config, phone=phone)
         self._sessions[phone] = _Session(agent=new_agent, last_active=now)
         return new_agent
 

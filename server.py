@@ -91,7 +91,7 @@ async def receive_message(request: Request):
         return Response(status_code=200)
 
     phone, text = result
-    agent = _sessions.get_or_create(phone)
+    agent = _sessions.get_or_create(phone, phone=phone)
 
     # agent.chat() es bloqueante (SDK de OpenAI es sync).
     # run_in_executor lo corre en un thread pool sin bloquear el event loop.

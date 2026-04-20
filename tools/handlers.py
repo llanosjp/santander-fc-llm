@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import requests
 
 from config import Config
+from users import get_filtros_from_phone
 
 
 # Singleton: Config se carga una sola vez al importar el módulo,
@@ -27,27 +28,46 @@ def _get_config() -> Config:
     return _config
 
 
-def _call_api(dimension: str, periodo_from: int, periodo_to: int) -> str:
-    """Función base que llama a la API Santander y retorna JSON string."""
+# Teléfono global para filtrar datos
+_current_phone = None
+
+
+def _call_api(dimension: str, periodo_from: int, periodo_to: int, phone: str = None) -> str:
+    """Función base que llama a la API Santander y retorna JSON string.
+    
+    Args:
+        dimension: Tipo de consulta (TOTAL, CANAL, LIDER, JEFE)
+        periodo_from: Periodo inicial (YYYYMM)
+        periodo_to: Periodo final (YYYYMM)
+        phone: Número de WhatsApp del usuario (ej: +51902735404)
+    """
+    global _current_phone
+    
+    # Usar teléfono proporcionado o el global
+    phone = phone or _current_phone
+    
     config = _get_config()
     
-    # Mapeo de dimensión a filtro
-    filtro_mapping = {
-        "TOTAL": {"FILTRO_EJECUTIVO": None, "FILTRO_JEFE": None},
-        "CANAL": {"FILTRO_EJECUTIVO": None, "FILTRO_JEFE": None, "FILTRO_LIDER": None},
-        "LIDER": {"FILTRO_JEFE": None, "FILTRO_LIDER": None},
-        "JEFE": {"FILTRO_JEFE": None},
-    }
-    
-    filters = filtro_mapping.get(dimension, {})
+    # Si hay teléfono, usar filtros del usuario
+    if phone:
+        filtros = get_filtros_from_phone(phone)
+    else:
+        # Mapeo de dimensión a filtro por defecto
+        filtro_mapping = {
+            "TOTAL": {"FILTRO_EJECUTIVO": None, "FILTRO_JEFE": None},
+            "CANAL": {"FILTRO_EJECUTIVO": None, "FILTRO_JEFE": None, "FILTRO_LIDER": None},
+            "LIDER": {"FILTRO_JEFE": None, "FILTRO_LIDER": None},
+            "JEFE": {"FILTRO_JEFE": None},
+        }
+        filtros = filtro_mapping.get(dimension, {})
     
     payload = {
         "PERIODOFROM":  periodo_from,
         "PERIODOTO":    periodo_to,
-        "USUARIO": None,
-        "FILTRO_LIDER": filters.get("FILTRO_LIDER"),
-        "FILTRO_JEFE": filters.get("FILTRO_JEFE"),
-        "FILTRO_EJECUTIVO": filters.get("FILTRO_EJECUTIVO"),
+        "USUARIO": filtros.get("USUARIO"),
+        "FILTRO_LIDER": filtros.get("FILTRO_LIDER"),
+        "FILTRO_JEFE": filtros.get("FILTRO_JEFE"),
+        "FILTRO_EJECUTIVO": filtros.get("FILTRO_EJECUTIVO"),
     }
     
     try:
@@ -64,20 +84,20 @@ def _call_api(dimension: str, periodo_from: int, periodo_to: int) -> str:
         return json.dumps({"error": str(e)})
 
 
-def get_kpi_total(periodo_from: int, periodo_to: int) -> str:
-    return _call_api("TOTAL", periodo_from, periodo_to)
+def get_kpi_total(periodo_from: int, periodo_to: int, phone: str = None) -> str:
+    return _call_api("TOTAL", periodo_from, periodo_to, phone)
 
 
-def get_kpi_por_canal(periodo_from: int, periodo_to: int) -> str:
-    return _call_api("CANAL", periodo_from, periodo_to)
+def get_kpi_por_canal(periodo_from: int, periodo_to: int, phone: str = None) -> str:
+    return _call_api("CANAL", periodo_from, periodo_to, phone)
 
 
-def get_kpi_por_lider(periodo_from: int, periodo_to: int) -> str:
-    return _call_api("LIDER", periodo_from, periodo_to)
+def get_kpi_por_lider(periodo_from: int, periodo_to: int, phone: str = None) -> str:
+    return _call_api("LIDER", periodo_from, periodo_to, phone)
 
 
-def get_kpi_por_jefe(periodo_from: int, periodo_to: int) -> str:
-    return _call_api("JEFE", periodo_from, periodo_to)
+def get_kpi_por_jefe(periodo_from: int, periodo_to: int, phone: str = None) -> str:
+    return _call_api("JEFE", periodo_from, periodo_to, phone)
 
 
 def _upload_media(png_bytes: bytes, config: Config) -> str:
