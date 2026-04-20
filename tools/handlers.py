@@ -474,25 +474,21 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
     """
     Gráfica de líneas de colocaciones personales del ejecutivo.
     Muestra la evolución mes a mes de SUS créditos desembolsados.
-    Usa matplotlib con spline interpolation para líneas suaves.
-    
-    NOTA: La API de Power Automate tiene un bug - cuando filtra por usuario
-    y rango de fechas, solo devuelve 1 mes. Por eso llamamos mes por mes.
+    Usa Plotly con estilo profesional original.
     """
+    import plotly.graph_objects as go
     from scipy.interpolate import make_interp_spline
     import numpy as np
-    
+
     global _current_phone
-    
+
     config = _get_config()
-    
-    # Obtener lista de meses a consultar
+
+    # La API de Power Automate tiene un bug con rangos + filtro de usuario
+    # Solución: llamar mes por mes y combinar resultados
     meses = _get_months_in_range(periodo_from, periodo_to)
-    
-    # La API tiene bug: solo devuelve 1 mes con filtro de rango+usuario
-    # Solución: llamar API mes por mes y combinar resultados
+
     all_registros = []
-    
     for mes in meses:
         raw = _call_api("TOTAL", mes, mes, phone=_current_phone)
         try:
@@ -503,109 +499,99 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
                 all_registros.extend(data)
         except (json.JSONDecodeError, TypeError):
             continue
-    
+
     if not all_registros:
         return json.dumps({"error": "No hay datos para el período solicitado."})
-    
-    # Obtener nombre del usuario
+
     nombre_usuario = all_registros[0].get("ORI_DES_EJECUTIVO", "Ejecutivo")
-    
-    # Extraer períodos y créditos
+
     periodos = []
     creditos = []
-    
     for row in all_registros:
         periodo = int(row.get("PERIODO") or 0)
         nro_creditos = int(row.get("DESEMBOLSADO") or row.get("NRO_CREDITOS") or 0)
-        
         periodos.append(periodo)
         creditos.append(nro_creditos)
-    
+
     if not creditos or sum(creditos) == 0:
         return json.dumps({"error": "No hay colocaciones registradas en el período."})
-    
-    # Etiquetas de períodos (formato "Ene 2026")
+
     periodo_labels = [_periodo_label_es(p) for p in periodos]
-    
-    # Crear gráfica profesional con matplotlib
-    fig, ax = plt.subplots(figsize=(12, 6.67))  # Aspect ratio similar a 900x500
-    
-    # Preparar datos para spline interpolation
+
+    # ============ PLOTLY con estilo profesional ============
+    fig = go.Figure()
     x = np.arange(len(creditos))
-    
-    # Crear línea suave con spline si hay suficientes puntos
+
+    # Línea suave con spline
     if len(creditos) >= 3:
         try:
-            x_smooth = np.linspace(0, len(creditos) - 1, 200)
+            x_smooth = np.linspace(0, len(creditos) - 1, 100)
             spl = make_interp_spline(x, creditos, k=min(3, len(creditos) - 1))
             y_smooth = spl(x_smooth)
-            
-            # Línea suave
-            ax.plot(x_smooth, y_smooth, linewidth=3, color='#3498db', zorder=2)
-            
-            # Área bajo la curva (suave)
-            ax.fill_between(x_smooth, y_smooth, alpha=0.15, color='#3498db', zorder=1)
+            fig.add_trace(go.Scatter(
+                x=periodo_labels,
+                y=creditos,
+                mode='lines',
+                name=nombre_usuario,
+                line=dict(shape='spline', smoothing=1.3, color='#3498db', width=4),
+                hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
+            ))
         except Exception:
-            # Fallback: línea simple
-            ax.plot(x, creditos, linewidth=3, color='#3498db', zorder=2)
-            ax.fill_between(x, creditos, alpha=0.15, color='#3498db', zorder=1)
-    else:
-        # Línea simple para pocos puntos
-        ax.plot(x, creditos, linewidth=3, color='#3498db', zorder=2)
-        ax.fill_between(x, creditos, alpha=0.15, color='#3498db', zorder=1)
-    
-    # Puntos marcadores (más visibles, estilo Plotly)
-    ax.scatter(x, creditos, s=120, color='#3498db', edgecolor='white', 
-               linewidth=2.5, zorder=3, clip_on=False)
-    
-    # Títulos y etiquetas (estilo Plotly)
-    titulo_principal = f"Mis Colocaciones — {nombre_usuario}"
-    subtitulo = f"{_periodo_label_es(periodo_from)} – {_periodo_label_es(periodo_to)}"
-    ax.text(0.5, 1.05, titulo_principal, transform=ax.transAxes, 
-            fontsize=18, fontweight='bold', color='#2c3e50', ha='center')
-    ax.text(0.5, 1.01, subtitulo, transform=ax.transAxes, 
-            fontsize=12, color='#7f8c8d', ha='center')
-    
-    ax.set_xlabel('Período', fontsize=13, color='#2c3e50', fontweight='500')
-    ax.set_ylabel('N° Créditos', fontsize=13, color='#2c3e50', fontweight='500')
-    
-    # Grid profesional (estilo Plotly)
-    ax.grid(True, alpha=0.25, linestyle='-', linewidth=0.5, color='#ecf0f1', zorder=0)
-    ax.set_axisbelow(True)
-    
-    # Fondo blanco limpio
-    ax.set_facecolor('white')
-    fig.patch.set_facecolor('white')
-    
-    # Configurar ejes
-    ax.set_xticks(x)
-    ax.set_xticklabels(periodo_labels, fontsize=10, color='#2c3e50')
-    ax.tick_params(axis='y', labelsize=10, colors='#2c3e50')
-    
-    # Formato de miles en eje Y
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f'{int(y):,}'))
-    
-    # Rotar etiquetas si son muchas
-    if len(periodo_labels) > 8:
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
-    
-    # Espinas del gráfico (bordes)
-    for spine in ax.spines.values():
-        spine.set_color('#bdc3c7')
-        spine.set_linewidth(0.5)
-    
-    # Ajustar márgenes
-    plt.subplots_adjust(left=0.08, right=0.96, top=0.88, bottom=0.12)
-    
-    # Exportar a PNG de alta calidad
+            fig.add_trace(go.Scatter(
+                x=periodo_labels, y=creditos, mode='lines',
+                name=nombre_usuario, line=dict(color='#3498db', width=4),
+            ))
+
+    # Puntos marcadores estilo profesional
+    fig.add_trace(go.Scatter(
+        x=periodo_labels,
+        y=creditos,
+        mode='markers',
+        name=nombre_usuario,
+        marker=dict(size=14, color='#3498db', symbol='circle', line=dict(width=2, color='white')),
+        text=[f'{c:,}' for c in creditos],
+        hovertemplate='%{x}<br>%{text} créditos<extra></extra>',
+    ))
+
+    # Layout profesional (igual a las otras gráficas)
+    fig.update_layout(
+        template='plotly_white',
+        title=dict(
+            text=f"Mis Colocaciones — {nombre_usuario}<br><sup>{_periodo_label_es(periodo_from)} – {_periodo_label_es(periodo_to)}</sup>",
+            font=dict(size=20, color='#2c3e50'),
+        ),
+        xaxis=dict(
+            title=dict(text="Período", font=dict(size=14, color='#2c3e50')),
+            tickfont=dict(size=11, color='#2c3e50'),
+            showgrid=True,
+            gridcolor='#ecf0f1',
+        ),
+        yaxis=dict(
+            title=dict(text="N° Créditos", font=dict(size=14, color='#2c3e50')),
+            tickfont=dict(size=11, color='#2c3e50'),
+            showgrid=True,
+            gridcolor='#ecf0f1',
+            tickformat=",d",
+        ),
+        legend=dict(
+            font=dict(size=12, color='#2c3e50'),
+            bgcolor='rgba(255,255,255,0.8)',
+            bordercolor='#bdc3c7',
+            borderwidth=1,
+        ),
+        margin=dict(l=60, r=40, t=80, b=60),
+        width=900,
+        height=500,
+        hovermode='x unified',
+    )
+
+    # Exportar a PNG
     buf = io.BytesIO()
     try:
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight', 
-                   facecolor='white', edgecolor='none')
-        plt.close(fig)
+        fig.write_image(buf, format="png", scale=2)
         buf.seek(0)
         media_id = _upload_media(buf.read(), config)
         return f"__IMAGE__:{media_id}"
     except Exception as e:
-        plt.close(fig)
         return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
+            
