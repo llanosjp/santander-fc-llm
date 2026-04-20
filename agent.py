@@ -65,7 +65,24 @@ class SalesAgent:
         self.client = OpenAI(api_key=config.openai_api_key)
         self.config = config
         self.phone = phone  # Teléfono del usuario para filtrar datos
-        self.history: list[dict] = [{"role": "system", "content": _build_system_prompt()}]
+        # Obtener nombre del usuario si está mapeado
+        from users import get_user_by_phone
+        self.user_name = None
+        if phone:
+            user_data = get_user_by_phone(phone)
+            if user_data:
+                _, _, self.user_name = user_data
+        
+        # Construir mensaje de saludo con nombre
+        if self.user_name:
+            saludo = f"Hola {self.user_name}! 👋 Soy tu asistente de Santander. Puedo ayudarte con tus KPIs de colocaciones. ¿Qué quieres saber?"
+        else:
+            saludo = "Hola! 👋 Soy tu asistente de Santander. Puedo ayudarte con tus KPIs de colocaciones. ¿Qué quieres saber?"
+            
+        self.history: list[dict] = [
+            {"role": "system", "content": _build_system_prompt()},
+            {"role": "assistant", "content": saludo}
+        ]
         # Guardar phone globalmente para usar en las tools
         global _current_phone
         _current_phone = phone
