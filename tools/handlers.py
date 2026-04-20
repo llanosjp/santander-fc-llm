@@ -85,19 +85,70 @@ def _call_api(dimension: str, periodo_from: int, periodo_to: int, phone: str = N
 
 
 def get_kpi_total(periodo_from: int, periodo_to: int, phone: str = None) -> str:
-    return _call_api("TOTAL", periodo_from, periodo_to, phone)
+    result = _call_api("TOTAL", periodo_from, periodo_to, phone)
+    # Corregir promedios si hay datos
+    return _corregir_promedios(result)
 
 
 def get_kpi_por_canal(periodo_from: int, periodo_to: int, phone: str = None) -> str:
-    return _call_api("CANAL", periodo_from, periodo_to, phone)
+    result = _call_api("CANAL", periodo_from, periodo_to, phone)
+    return _corregir_promedios(result)
+
+
+def _corregir_promedios(json_str: str) -> str:
+    """
+    Corrige TEA_PROMEDIO, TCEA_PROMEDIO y PLAZO_PROMEDIO.
+    Los valores que vienen son累加, hay que dividirlos por MONTO.
+    """
+    import json
+    try:
+        data = json.loads(json_str)
+        
+        # Si es un dict con clave 'data'
+        if isinstance(data, dict) and 'data' in data:
+            registros = data['data']
+        elif isinstance(data, list):
+            registros = data
+        else:
+            return json_str
+        
+        # Procesar cada registro
+        for reg in registros:
+            monto = reg.get('MONTO', 0)
+            if monto and monto != 0:
+                # Calcular promedios reales
+                tea = reg.get('TEA_PROMEDIO', 0)
+                tcea = reg.get('TCEA_PROMEDIO', 0)
+                plazo = reg.get('PLAZO_PROMEDIO', 0)
+                
+                # Dividir por monto (quitar los decimales primero)
+                reg['TEA_PROMEDIO'] = round(tea / monto, 2) if tea else 0
+                reg['TCEA_PROMEDIO'] = round(tcea / monto, 2) if tcea else 0
+                reg['PLAZO_PROMEDIO'] = round(plazo / monto, 2) if plazo else 0
+            else:
+                reg['TEA_PROMEDIO'] = 0
+                reg['TCEA_PROMEDIO'] = 0
+                reg['PLAZO_PROMEDIO'] = 0
+        
+        # Reconstruir respuesta
+        if isinstance(data, dict):
+            data['data'] = registros
+            return json.dumps(data, ensure_ascii=False)
+        else:
+            return json.dumps(registros, ensure_ascii=False)
+            
+    except Exception:
+        return json_str
 
 
 def get_kpi_por_lider(periodo_from: int, periodo_to: int, phone: str = None) -> str:
-    return _call_api("LIDER", periodo_from, periodo_to, phone)
+    result = _call_api("LIDER", periodo_from, periodo_to, phone)
+    return _corregir_promedios(result)
 
 
 def get_kpi_por_jefe(periodo_from: int, periodo_to: int, phone: str = None) -> str:
-    return _call_api("JEFE", periodo_from, periodo_to, phone)
+    result = _call_api("JEFE", periodo_from, periodo_to, phone)
+    return _corregir_promedios(result)
 
 
 def _upload_media(png_bytes: bytes, config: Config) -> str:
