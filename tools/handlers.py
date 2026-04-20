@@ -570,7 +570,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
             y=credito,
             text=f"{credito:,}<br>S/ {monto:,.0f}",
             showarrow=False,
-            font=dict(size=10, color='#1A237E'),
+            font=dict(size=12, color='#1A237E'),
             yshift=15,  # arriba del punto
         )
     
@@ -588,7 +588,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
         template='plotly_white',
         title=dict(
             text=f"Mis Colocaciones — {nombre_usuario}<br><sup>{_periodo_label_es(periodo_from)} – {_periodo_label_es(periodo_to)}</sup>",
-            font=dict(size=20, color='#2c3e50'),
+            font=dict(size=20, color='#2c3e50', weight='bold'),
         ),
         xaxis=dict(
             title=dict(text="Período", font=dict(size=14, color='#2c3e50')),
@@ -724,7 +724,7 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
                 y=valor,
                 text=f"{valor:,}",
                 showarrow=False,
-                font=dict(size=11, color=color, weight='bold'),
+                font=dict(size=13, color=color, weight='bold'),
                 yshift=15,
             )
 
@@ -744,7 +744,7 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
         template='plotly_white',
         title=dict(
             text=f"Mi Evolución — {nombre_usuario}<br><sup>{años_label} (Ene-Abr)</sup>",
-            font=dict(size=20, color='#2c3e50'),
+            font=dict(size=20, color='#2c3e50', weight='bold'),
         ),
         xaxis=dict(
             title=dict(text="Mes", font=dict(size=14, color='#2c3e50')),
