@@ -315,6 +315,7 @@ No uses `nohup` ni `screen`. Systemd reinicia automáticamente si el proceso mue
 ## 📞 Contacto
 
 **Autor:** Jean Pierre Llanos  
+**Email:** jean.llanos.gutierrez@gmail.com  
 **Proyecto:** Hackathon Interna de IA — Santander Perú  
 **Repo:** https://github.com/llanosjp/santander-fc-llm
 
