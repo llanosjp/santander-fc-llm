@@ -75,9 +75,9 @@ class SalesAgent:
         
         # Construir mensaje de saludo con nombre
         if self.user_name:
-            saludo = f"Hola {self.user_name}! 👋 Soy tu asistente de Santander. Puedo ayudarte con tus KPIs de colocaciones. ¿Qué quieres saber?"
+            saludo = f"Hola {self.user_name}! 👋 Soy tu asistente de Santander. ¿En qué puedo ayudarte?"
         else:
-            saludo = "Hola! 👋 Soy tu asistente de Santander. Puedo ayudarte con tus KPIs de colocaciones. ¿Qué quieres saber?"
+            saludo = "Hola! 👋 Soy tu asistente de Santander. ¿En qué puedo ayudarte?"
             
         self.history: list[dict] = [
             {"role": "system", "content": _build_system_prompt()},
