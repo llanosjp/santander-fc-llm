@@ -548,17 +548,19 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
                 mode='lines',
                 name=nombre_usuario,
                 line=dict(shape='spline', smoothing=1.3, color='#3498db', width=4),
-                hovertemplate='%{x}<br>S/ %{y:,.0f}<extra></extra>',
+                hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
             ))
         except Exception:
             fig.add_trace(go.Scatter(
                 x=periodo_labels, y=creditos, mode='lines',
                 name=nombre_usuario, line=dict(color='#3498db', width=4),
+                hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
             ))
 
     # Puntos marcadores estilo profesional - mostrar créditos y monto
     texts = []
     for c, m in zip(creditos, montos):
+        # Mostrar cantidad y monto
         text = f"{c:,} créditos<br>S/ {m:,.0f}"
         texts.append(text)
     
@@ -586,11 +588,11 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
             gridcolor='#ecf0f1',
         ),
         yaxis=dict(
-            title=dict(text="Monto (S/)", font=dict(size=14, color='#2c3e50')),
+            title=dict(text="N° Créditos", font=dict(size=14, color='#2c3e50')),
             tickfont=dict(size=11, color='#2c3e50'),
             showgrid=True,
             gridcolor='#ecf0f1',
-            tickformat=",.0f",
+            tickformat=",d",
         ),
         legend=dict(
             font=dict(size=12, color='#2c3e50'),
