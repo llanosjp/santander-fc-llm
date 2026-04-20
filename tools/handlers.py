@@ -557,21 +557,33 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
                 hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
             ))
 
-    # Puntos marcadores estilo profesional - mostrar créditos y monto
+    # Puntos marcadores - mostrar créditos y monto EN LA IMAGEN (no solo hover)
     texts = []
     for c, m in zip(creditos, montos):
-        # Mostrar cantidad y monto
-        text = f"{c:,} créditos<br>S/ {m:,.0f}"
-        texts.append(text)
+        texts.append(f"{c:,}")
     
+    # Agregar labels directamente en la gráfica
+    for i, (label, credito, monto) in enumerate(zip(periodo_labels, creditos, montos)):
+        fig.add_annotation(
+            x=label,
+            y=credito,
+            text=f"{credito:,}<br>S/ {monto:,.0f}",
+            showarrow=False,
+            font=dict(size=10, color='#2c3e50'),
+            bgcolor='rgba(255,255,255,0.8)',
+            bordercolor='#bdc3c7',
+            borderwidth=1,
+            borderpad=3,
+            yshift=15,  # arriba del punto
+        )
+    
+    # Puntos marcadores (sin texto)
     fig.add_trace(go.Scatter(
         x=periodo_labels,
         y=creditos,
         mode='markers',
         name=nombre_usuario,
-        marker=dict(size=14, color='#3498db', symbol='circle', line=dict(width=2, color='white')),
-        text=texts,
-        hovertemplate='%{x}<br>%{text}<extra></extra>',
+        marker=dict(size=12, color='#3498db', symbol='circle', line=dict(width=2, color='white')),
     ))
 
     # Layout profesional (igual a las otras gráficas)
