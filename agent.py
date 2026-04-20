@@ -73,11 +73,14 @@ class SalesAgent:
         self.user_name = None
         if phone:
             user_data = get_user_by_phone(phone)
+            print(f"[DEBUG] Phone: {phone}, user_data: {user_data}")
             if user_data:
                 _, _, self.user_name = user_data
+                print(f"[DEBUG] User name set to: {self.user_name}")
         
         # Construir mensaje de saludo con nombre
         if self.user_name:
+            print(f"[DEBUG] Greeting with name: {self.user_name}")
             saludo = f"Hola {self.user_name}! 👋 Soy tu asistente de Santander. ¿En qué puedo ayudarte?"
         else:
             saludo = "Hola! 👋 Soy tu asistente de Santander. ¿En qué puedo ayudarte?"
