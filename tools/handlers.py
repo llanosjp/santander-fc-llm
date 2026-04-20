@@ -504,7 +504,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
         except (json.JSONDecodeError, TypeError):
             continue
     
-if not all_registros:
+    if not all_registros:
         return json.dumps({"error": "No hay datos para el período solicitado."})
     
     # Obtener nombre del usuario
