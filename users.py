@@ -6,7 +6,7 @@ Usado para filtrar los datos que retorna la API.
 # Formato: número WhatsApp (sin +) -> (usuario, rol, nombre)
 WHATSAPP_USERS = {
     # Ejecutivos
-    "51902735404": ("jvelez", "ejecutivo", "Juan Velez"),
+    "51902735404": ("jvelez", "ejecutivo", "Jose Velez"),
     # Agreg más usuarios aquí:
     # "51999999999": ("usuario2", "jefe", "Nombre Apellido"),
     # "51988888888": ("usuario3", "lider", "Nombre Lider"),
