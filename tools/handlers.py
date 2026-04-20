@@ -570,7 +570,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
             y=credito,
             text=f"{credito:,}<br>S/ {monto:,.0f}",
             showarrow=False,
-            font=dict(size=10, color='#DA291C'),
+            font=dict(size=10, color='#1A237E'),
             yshift=15,  # arriba del punto
         )
     
