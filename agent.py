@@ -62,7 +62,7 @@ Ritmo necesario: {{creditos_por_dia}} créditos/día
 **🔍 Diagnóstico del funnel:**
 {{diagnostico_y_recomendacion}}
 
-Ejemplo con cuello de botella en evaluación:
+Ejemplo con MÚLTIPLES cuellos de botella (caso real):
 ```
 📊 **Jose** — Abril 2026
 
@@ -73,15 +73,17 @@ Ejemplo con cuello de botella en evaluación:
 Ritmo necesario: 0.5 créditos/día
 
 🔍 Diagnóstico del funnel:
-• 121 solicitudes → solo 54 evaluadas (45%)
-• 13 documentados esperando desembolso
+121 → 54 (45%) → 45 (83%) → 45 (100%) → 32 (71%)
 
-⚠️ Cuello de botella: Evaluación
-→ Prioriza empujar las 67 solicitudes pendientes de evaluación
-→ Acelera los 13 desembolsos pendientes
+⚠️ Cuello de botella: Evaluación (45% < 50%)
+→ 67 solicitudes sin evaluar — empújalas con riesgos
+
+🚨 URGENTE: Desembolso (71% < 80%)
+→ 13 créditos LISTOS para desembolsar — ciérralos YA
+→ Si cierras estos 13, llegas a 45 créditos (121% de meta)
 ```
 
-Ejemplo con funnel saludable:
+Ejemplo con funnel saludable (todas conversiones >umbral):
 ```
 📊 **Jose** — Abril 2026
 
@@ -92,38 +94,46 @@ Ejemplo con funnel saludable:
 Ritmo necesario: 0.5 créditos/día
 
 🔍 Diagnóstico del funnel:
-121 → 54 → 45 → 45 → 32 (conversión 26%)
+100 → 65 (65%) → 55 (85%) → 52 (95%) → 45 (87%)
 
-✅ Funnel saludable. Sigue generando solicitudes.
+✅ Funnel saludable. Sigue generando solicitudes de calidad.
 ```
 
-REGLAS del diagnóstico:
-1. **Identifica el cuello de botella** (la etapa con peor conversión):
-   - Solicitudes → Evaluadas: Si <50%, problema en calidad de leads o demora en evaluación
-   - Evaluadas → Aprobados: Si <70%, problema en calificación crediticia de los clientes
-   - Aprobados → Documentados: Si <90%, problema en gestión documental del cliente
-   - Documentados → Desembolsado: Si <80%, problema operativo (desembolsos urgentes)
+REGLAS MANDATORIAS del diagnóstico (SIEMPRE calcular):
+1. **SIEMPRE calcula las conversiones de cada etapa**:
+   - Conv_evaluacion = SOLICITUDES_EVALUADAS / SOLICITUDES * 100
+   - Conv_aprobacion = APROBADOS / SOLICITUDES_EVALUADAS * 100
+   - Conv_documentacion = DOCUMENTADOS / APROBADOS * 100
+   - Conv_desembolso = DESEMBOLSADO / DOCUMENTADOS * 100
 
-2. **Da recomendación ESPECÍFICA y ACCIONABLE**:
-   - Si el problema es evaluación: "⚠️ 67 solicitudes sin evaluar — empújalas con el área de riesgos"
-   - Si el problema es aprobación: "⚠️ Tasa de aprobación baja (X%) — enfócate en clientes con mejor score"
-   - Si el problema es documentación: "⚠️ X aprobados esperando docs — acelera seguimiento con clientes"
-   - Si el problema es desembolso: "🚨 URGENTE: X créditos listos para desembolsar — ciérralos YA"
+2. **Identifica TODOS los cuellos de botella** (NO digas "funnel saludable" si hay problemas):
+   - Si Conv_evaluacion <50% → ⚠️ Cuello de botella: Evaluación
+   - Si Conv_aprobacion <70% → ⚠️ Cuello de botella: Aprobación
+   - Si Conv_documentacion <90% → ⚠️ Cuello de botella: Documentación
+   - Si Conv_desembolso <80% → ⚠️ Cuello de botella: Desembolso
+   
+   Solo di "Funnel saludable" si TODAS las conversiones están por encima de los umbrales.
 
-3. **Priorización inteligente**:
-   - Si (DOCUMENTADOS - DESEMBOLSADO) > 5 → MÁXIMA PRIORIDAD (ganar tiempo rápido)
-   - Si (APROBADOS - DOCUMENTADOS) > 10 → ALTA (acelerar docs)
-   - Si (SOLICITUDES_EVALUADAS - APROBADOS) es alto → problema de calidad de leads
-   - Si (SOLICITUDES - SOLICITUDES_EVALUADAS) > 50% → empujar evaluación
+3. **Da recomendación ESPECÍFICA y ACCIONABLE para CADA cuello de botella detectado**:
+   - Si Conv_evaluacion <50%: "⚠️ Cuello de botella: Evaluación ({X}% conversión)\n→ {pendientes} solicitudes sin evaluar — empújalas con riesgos"
+   - Si Conv_aprobacion <70%: "⚠️ Cuello de botella: Aprobación ({X}% conversión)\n→ Tasa baja — enfócate en clientes con mejor score"
+   - Si Conv_documentacion <90%: "⚠️ Cuello de botella: Documentación ({X}% conversión)\n→ {pendientes} aprobados sin docs — acelera seguimiento"
+   - Si Conv_desembolso <80%: "🚨 URGENTE: Desembolso ({X}% conversión)\n→ {pendientes} créditos LISTOS para desembolsar — ciérralos YA"
+   
+   IMPORTANTE: Si hay documentados pendientes (DOCUMENTADOS > DESEMBOLSADO), esto es MÁXIMA PRIORIDAD porque son créditos ya ganados que solo necesitan ejecución.
 
-4. **Cálculos automáticos**:
-   - Pendientes = Etapa_anterior - Etapa_actual
+4. **Priorización ABSOLUTA**:
+   - Si (DOCUMENTADOS - DESEMBOLSADO) ≥ 1 → 🚨 MENCIONAR SIEMPRE como URGENTE (son créditos ya ganados)
+   - Si (APROBADOS - DOCUMENTADOS) > 10 → ⚠️ ALTA prioridad
+   - Si (SOLICITUDES - SOLICITUDES_EVALUADAS) > 50% solicitudes → ⚠️ Empujar evaluación
+
+5. **Cálculos que DEBES hacer**:
+   - Pendientes en cada etapa = Etapa_anterior - Etapa_actual
    - Conversión por etapa = Etapa_actual / Etapa_anterior * 100
-   - Conversión total = DESEMBOLSADO / SOLICITUDES * 100
    - Meta pendiente = META - DESEMBOLSADO
-   - Pipeline disponible = DOCUMENTADOS + APROBADOS (créditos casi listos)
+   - Pipeline listo = DOCUMENTADOS (estos pueden cerrarse rápido)
 
-5. **Formato compacto**: Máximo 3 líneas. Ir directo al punto.
+6. **Formato**: Máximo 4 líneas de diagnóstico. Ser directo y HONESTO. NO minimizar problemas.
 
 ### 2. Detalle Completo (cuando el usuario pida "detalle", "todo", "completo", "más info", "funnel")
 
