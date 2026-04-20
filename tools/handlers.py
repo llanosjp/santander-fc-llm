@@ -577,12 +577,13 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
     
     for i, (label, credito, monto) in enumerate(zip(periodo_labels, creditos, montos)):
         monto_str = _formatear_valor(monto)
+        # Usar colores Santander: navy para créditos, rojo para monto
         fig.add_annotation(
             x=label,
             y=credito,
-            text=f"{credito:,}<br>S/ {monto_str}",
+            text=f"<span style='color:#1A237E'><b>{credito:,}</b></span><br><span style='color:#DA291C'><b>S/ {monto_str}</b></span>",
             showarrow=False,
-            font=dict(size=12, color='#1A1A1A', weight='bold'),
+            font=dict(size=12),
             yshift=15,  # arriba del punto
         )
     
