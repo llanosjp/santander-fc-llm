@@ -728,7 +728,7 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
                 y=valor,
                 text=f"{valor:,}",
                 showarrow=False,
-                font=dict(size=11, color=color, fontweight='bold'),
+                font=dict(size=11, color=color, weight='bold'),
                 bgcolor='rgba(255,255,255,0.9)',
                 bordercolor=color,
                 borderwidth=1,
