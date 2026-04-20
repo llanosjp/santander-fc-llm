@@ -91,6 +91,7 @@ async def receive_message(request: Request):
         return Response(status_code=200)
 
     phone, text = result
+    print(f"[SERVER] phone={phone}, text={text}")
     agent = _sessions.get_or_create(phone, phone_number=phone)
 
     # agent.chat() es bloqueante (SDK de OpenAI es sync).

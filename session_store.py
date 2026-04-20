@@ -54,6 +54,7 @@ class SessionStore:
 
         La limpieza es lazy: se detecta al acceder, no en background.
         """
+        print(f"[SESSION] phone={phone}")
         now = time.time()
         session = self._sessions.get(phone)
 
