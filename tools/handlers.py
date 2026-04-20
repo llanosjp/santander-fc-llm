@@ -567,12 +567,15 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
     
     # Agregar labels directamente en la gráfica (texto sobre línea)
     for i, (label, credito, monto) in enumerate(zip(periodo_labels, creditos, montos)):
+        # Formatear monto en miles (ej: 1500 -> 1.5K)
+        monto_k = monto / 1000
+        monto_str = f"{monto_k:.1f}K" if monto_k >= 1 else f"{monto:.0f}"
         fig.add_annotation(
             x=label,
             y=credito,
-            text=f"{credito:,}<br>S/ {monto:,.0f}",
+            text=f"{credito:,}<br>S/ {monto_str}",
             showarrow=False,
-            font=dict(size=12, color='#1A237E'),
+            font=dict(size=12, color='#1A1A1A', weight='bold'),
             yshift=15,  # arriba del punto
         )
     
