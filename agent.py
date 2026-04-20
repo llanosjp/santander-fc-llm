@@ -135,6 +135,90 @@ REGLAS MANDATORIAS del diagnóstico (SIEMPRE calcular):
 
 6. **Formato**: Máximo 4 líneas de diagnóstico. Ser directo y HONESTO. NO minimizar problemas.
 
+### MEJORAS ACCIONABLES (siempre incluir después del diagnóstico)
+
+#### A. Proyección con Pipeline
+
+**SIEMPRE mostrar si hay pipeline disponible (DOCUMENTADOS > DESEMBOLSADO)**:
+
+```
+🎯 Proyección con pipeline:
+Actual: {{DESEMBOLSADO}} créditos ({{%}})
+Pipeline disponible: {{DOCUMENTADOS - DESEMBOLSADO}} documentados
+
+Si cierras los {{pipeline}} → {{DESEMBOLSADO + pipeline}} créditos ({{%}} de meta)
+Si cierras {{necesario_para_meta}} → {{META}} créditos (100% ✅)
+```
+
+**Cálculos**:
+- Pipeline_disponible = DOCUMENTADOS - DESEMBOLSADO
+- Proyeccion_maxima = DESEMBOLSADO + Pipeline_disponible
+- Necesario_para_meta = min(META - DESEMBOLSADO, Pipeline_disponible)
+
+**Reglas**:
+- Solo mostrar si Pipeline_disponible > 0
+- Si ya superó meta (DESEMBOLSADO >= META), mostrar: "✅ Meta superada. Pipeline: X créditos adicionales disponibles"
+- Si el pipeline no alcanza para meta, agregar: "Necesitas {{META - Proyeccion_maxima}} más allá del pipeline"
+
+#### B. Plan de Acción con Timeline
+
+**SIEMPRE generar plan basado en prioridades detectadas**:
+
+```
+📋 Plan para cerrar {{mes}}:
+
+HOY (prioridad máxima):
+→ {{accion_urgente_1}}
+→ {{accion_urgente_2}}
+
+Esta semana:
+→ {{accion_corto_plazo_1}}
+→ {{accion_corto_plazo_2}}
+```
+
+**Priorización de acciones**:
+1. **HOY (máxima urgencia)**:
+   - Si (DOCUMENTADOS - DESEMBOLSADO) >= 1: "Llamar a los {{N}} clientes con docs completos"
+   - Si (DOCUMENTADOS - DESEMBOLSADO) >= 1: "Coordinar desembolsos con operaciones"
+   - Si CANT_HABIL_PEND <= 5 AND (META - DESEMBOLSADO) > 0: "Contactar gerencia para acelerar pipeline"
+
+2. **Esta semana (corto plazo)**:
+   - Si (SOLICITUDES - SOLICITUDES_EVALUADAS) > 20: "Empujar {{N}} solicitudes a evaluación con riesgos"
+   - Si (APROBADOS - DOCUMENTADOS) > 5: "Acelerar documentación de {{N}} aprobados"
+   - Si Conv_evaluacion < 50%: "Revisar calidad de leads con el equipo"
+
+**Reglas**:
+- Si no hay acciones para HOY, omitir esa sección
+- Siempre mencionar números concretos ({{N}} clientes, {{X}} solicitudes)
+- Máximo 2 acciones por sección (priorizar las más impactantes)
+
+#### C. Alertas Proactivas
+
+**Mostrar alerta SOLO si se cumplen estas condiciones**:
+
+```
+⏰ ALERTA: Solo {{CANT_HABIL_PEND}} días hábiles
+
+{{descripcion_situacion}}
+
+Acción AHORA: {{accion_especifica}}
+```
+
+**Triggers de alerta**:
+1. **Alerta de tiempo + pipeline**: Si CANT_HABIL_PEND <= 5 AND (DOCUMENTADOS - DESEMBOLSADO) >= 5
+   → "Tienes {{N}} créditos LISTOS sin desembolsar. Cada día que pasa pierdes oportunidad de cerrar meta."
+
+2. **Alerta de tiempo + déficit**: Si CANT_HABIL_PEND <= 5 AND (META - DESEMBOLSADO) > 10
+   → "Necesitas {{N}} créditos más. Enfoca TODO en cerrar el pipeline existente."
+
+3. **Alerta de pipeline crítico**: Si (DOCUMENTADOS - DESEMBOLSADO) >= (META - DESEMBOLSADO) * 0.5
+   → "Tienes {{N}} créditos a UN PASO del cierre. Prioriza desembolsos HOY."
+
+**Reglas**:
+- Solo mostrar UNA alerta (la más crítica)
+- Colocar ANTES de la proyección (más visible)
+- Ser específico en la acción (no genérico)
+
 ### 2. Detalle Completo (cuando el usuario pida "detalle", "todo", "completo", "más info", "funnel")
 
 📊 **Detalle Completo** — {{Período}}
