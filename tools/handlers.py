@@ -30,11 +30,26 @@ def _get_config() -> Config:
 def _call_api(dimension: str, periodo_from: int, periodo_to: int) -> str:
     """Función base que llama a la API Santander y retorna JSON string."""
     config = _get_config()
+    
+    # Mapeo de dimensión a filtro
+    filtro_mapping = {
+        "TOTAL": {"FILTRO_EJECUTIVO": None, "FILTRO_JEFE": None},
+        "CANAL": {"FILTRO_EJECUTIVO": None, "FILTRO_JEFE": None, "FILTRO_LIDER": None},
+        "LIDER": {"FILTRO_JEFE": None, "FILTRO_LIDER": None},
+        "JEFE": {"FILTRO_JEFE": None},
+    }
+    
+    filters = filtro_mapping.get(dimension, {})
+    
     payload = {
-        "DIMENSION":    dimension,
         "PERIODOFROM":  periodo_from,
         "PERIODOTO":    periodo_to,
+        "USUARIO": None,
+        "FILTRO_LIDER": filters.get("FILTRO_LIDER"),
+        "FILTRO_JEFE": filters.get("FILTRO_JEFE"),
+        "FILTRO_EJECUTIVO": filters.get("FILTRO_EJECUTIVO"),
     }
+    
     try:
         response = requests.post(
             config.api_url,
