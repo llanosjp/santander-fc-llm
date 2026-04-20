@@ -475,12 +475,22 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
     Gráfica de líneas de colocaciones personales del ejecutivo.
     Muestra la evolución mes a mes de SUS créditos desembolsados.
     Usa Plotly con estilo profesional original.
+    
+    Args:
+        periodo_from: Período inicial (YYYYMM)
+        periodo_to: Período final (YYYYMM)
     """
     import plotly.graph_objects as go
     from scipy.interpolate import make_interp_spline
     import numpy as np
 
     global _current_phone
+    
+    # Usar teléfono global o pasar explícitamente
+    phone = _current_phone
+    
+    if not phone:
+        return json.dumps({"error": "No se pudo identificar el usuario."})
 
     config = _get_config()
 
@@ -490,7 +500,8 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
 
     all_registros = []
     for mes in meses:
-        raw = _call_api("TOTAL", mes, mes, phone=_current_phone)
+        # Pasar el teléfono explícitamente a cada llamada
+        raw = _call_api("TOTAL", mes, mes, phone=phone)
         try:
             data = json.loads(raw)
             if isinstance(data, dict) and "data" in data:
