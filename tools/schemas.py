@@ -185,4 +185,32 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_chart_personal",
+            "description": (
+                "Genera una gráfica de líneas (chart, imagen, visual) mostrando la evolución "
+                "de MIS colocaciones personales de créditos en un rango de períodos. "
+                "Muestra la trayectoria individual del ejecutivo mes a mes. "
+                "Úsala cuando el usuario pida 'mi gráfica', 'mis colocaciones', "
+                "'mi evolución', 'mi desempeño en el tiempo', 'últimos X meses', "
+                "o cualquier referencia a SUS datos personales en formato visual."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "periodo_from": {
+                        "type": "integer",
+                        "description": "Período de inicio en formato YYYYMM. Ejemplo: 202311 para noviembre 2023.",
+                    },
+                    "periodo_to": {
+                        "type": "integer",
+                        "description": "Período de fin en formato YYYYMM. Ejemplo: 202604 para abril 2026.",
+                    },
+                },
+                "required": ["periodo_from", "periodo_to"],
+            },
+        },
+    },
 ]

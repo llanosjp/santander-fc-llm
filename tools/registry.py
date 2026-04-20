@@ -11,6 +11,7 @@ from tools.handlers import (
     generate_chart_jefes,
     generate_chart_lideres,
     generate_chart_yoy,
+    generate_chart_personal,
 )
 
 FUNCTION_MAP = {
@@ -21,6 +22,7 @@ FUNCTION_MAP = {
     "get_chart_jefes":      generate_chart_jefes,
     "get_chart_lideres":    generate_chart_lideres,
     "get_chart_yoy":        generate_chart_yoy,
+    "get_chart_personal":   generate_chart_personal,
 }
 
 

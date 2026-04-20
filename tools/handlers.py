@@ -479,3 +479,143 @@ def generate_chart_yoy(anio_from: int, anio_to: int) -> str:
         return f"__IMAGE__:{media_id}"
     except Exception as e:
         return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
+
+
+def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
+    """
+    Gráfica de líneas de colocaciones personales del ejecutivo.
+    Muestra la evolución mes a mes de SUS créditos desembolsados.
+    """
+    import plotly.graph_objects as go
+    import numpy as np
+    from scipy.interpolate import make_interp_spline
+    
+    global _current_phone
+    
+    config = _get_config()
+    
+    # Llamar API con filtro del usuario actual
+    raw = _call_api("TOTAL", periodo_from, periodo_to, phone=_current_phone)
+    
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "No se pudo parsear la respuesta de la API."})
+    
+    if isinstance(data, dict) and "error" in data:
+        return raw
+    
+    registros = data.get("data", []) if isinstance(data, dict) else data
+    
+    if not registros:
+        return json.dumps({"error": "No hay datos para el período solicitado."})
+    
+    # Obtener nombre del usuario
+    nombre_usuario = registros[0].get("ORI_DES_EJECUTIVO", "Ejecutivo")
+    
+    # Extraer períodos y créditos
+    periodos = []
+    creditos = []
+    
+    for row in registros:
+        periodo = int(row.get("PERIODO") or 0)
+        nro_creditos = int(row.get("DESEMBOLSADO") or row.get("NRO_CREDITOS") or 0)
+        
+        periodos.append(periodo)
+        creditos.append(nro_creditos)
+    
+    if not creditos or sum(creditos) == 0:
+        return json.dumps({"error": "No hay colocaciones registradas en el período."})
+    
+    # Etiquetas de períodos (formato "Ene 2026")
+    periodo_labels = [_periodo_label_es(p) for p in periodos]
+    
+    # Crear línea suave
+    x = np.arange(len(creditos))
+    
+    if len(creditos) >= 3:
+        try:
+            x_smooth = np.linspace(0, len(creditos) - 1, 50)
+            spl = make_interp_spline(x, creditos, k=min(3, len(creditos) - 1))
+            y_smooth = spl(x_smooth)
+        except Exception:
+            x_smooth = x
+            y_smooth = creditos
+    else:
+        x_smooth = x
+        y_smooth = creditos
+    
+    fig = go.Figure()
+    
+    # Línea principal (suave)
+    fig.add_trace(go.Scatter(
+        x=periodo_labels,
+        y=creditos,
+        mode='lines',
+        name=nombre_usuario,
+        line=dict(shape='spline', smoothing=1.3, color='#3498db', width=4),
+        hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
+    ))
+    
+    # Puntos sobre la línea
+    fig.add_trace(go.Scatter(
+        x=periodo_labels,
+        y=creditos,
+        mode='markers',
+        name=nombre_usuario,
+        marker=dict(size=14, color='#3498db', symbol='circle', line=dict(width=3, color='white')),
+        hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
+        showlegend=False,
+    ))
+    
+    # Área bajo la curva (opcional, para dar más impacto visual)
+    fig.add_trace(go.Scatter(
+        x=periodo_labels,
+        y=creditos,
+        fill='tozeroy',
+        mode='none',
+        fillcolor='rgba(52, 152, 219, 0.1)',
+        showlegend=False,
+        hoverinfo='skip',
+    ))
+    
+    fig.update_layout(
+        template='plotly_white',
+        title=dict(
+            text=f"Mis Colocaciones — {nombre_usuario}<br><sup>{_periodo_label_es(periodo_from)} – {_periodo_label_es(periodo_to)}</sup>",
+            font=dict(size=20, color='#2c3e50'),
+        ),
+        xaxis=dict(
+            title=dict(text="Período", font=dict(size=14, color='#2c3e50')),
+            tickfont=dict(size=11, color='#2c3e50'),
+            showgrid=True,
+            gridcolor='#ecf0f1',
+        ),
+        yaxis=dict(
+            title=dict(text="N° Créditos", font=dict(size=14, color='#2c3e50')),
+            tickfont=dict(size=11, color='#2c3e50'),
+            showgrid=True,
+            gridcolor='#ecf0f1',
+            tickformat=",d",
+        ),
+        legend=dict(
+            font=dict(size=12, color='#2c3e50'),
+            bgcolor='rgba(255,255,255,0.8)',
+            bordercolor='#bdc3c7',
+            borderwidth=1,
+        ),
+        margin=dict(l=60, r=40, t=80, b=60),
+        width=900,
+        height=500,
+        hovermode='x unified',
+    )
+    
+    # Exportar a PNG
+    buf = io.BytesIO()
+    try:
+        fig.write_image(buf, format="png", scale=2)
+        buf.seek(0)
+        media_id = _upload_media(buf.read(), config)
+        return f"__IMAGE__:{media_id}"
+    except Exception as e:
+        return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
