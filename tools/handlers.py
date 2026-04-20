@@ -627,4 +627,163 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
         return f"__IMAGE__:{media_id}"
     except Exception as e:
         return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
+
+
+def generate_chart_yoy_personal(anio_from: int, anio_to: int) -> str:
+    """
+    Gráfica Year-over-Year PERSONAL: compara los créditos del MISMO usuario
+    entre dos años (mismos meses).
+    
+    Args:
+        anio_from: Año inicial (ej: 2025)
+        anio_to: Año final (ej: 2026)
+    """
+    import plotly.graph_objects as go
+    from scipy.interpolate import make_interp_spline
+    import numpy as np
+
+    global _current_phone
+    phone = _current_phone
+    
+    if not phone:
+        return json.dumps({"error": "No se pudo identificar el usuario."})
+
+    config = _get_config()
+
+    # Obtener meses 1-4 (Enero-Abril) de ambos años
+    meses_consultar = []
+    for anio in [anio_from, anio_to]:
+        for mes in range(1, 5):  # Enero-Abril
+            meses_consultar.append(anio * 100 + mes)
+
+    # Llamar API mes por mes
+    all_registros = []
+    for periodo in meses_consultar:
+        raw = _call_api("TOTAL", periodo, periodo, phone=phone)
+        try:
+            data = json.loads(raw)
+            if isinstance(data, dict) and "data" in data:
+                all_registros.extend(data["data"])
+            elif isinstance(data, list):
+                all_registros.extend(data)
+        except (json.JSONDecodeError, TypeError):
+            continue
+
+    if not all_registros:
+        return json.dumps({"error": "No hay datos para los años solicitados."})
+
+    nombre_usuario = all_registros[0].get("ORI_DES_EJECUTIVO", "Ejecutivo")
+
+    # Agrupar por año y mes
+    yoy: dict[int, dict[int, int]] = {}
+    for row in all_registros:
+        periodo = int(row.get("PERIODO") or 0)
+        anio = periodo // 100
+        mes = periodo % 100
+        creditos = int(row.get("DESEMBOLSADO") or row.get("NRO_CREDITOS") or 0)
+        
+        if anio_from <= anio <= anio_to and 1 <= mes <= 4:
+            yoy.setdefault(anio, {})[mes] = creditos
+
+    if not yoy:
+        return json.dumps({"error": "No hay datos para comparar."})
+
+    meses_labels = ["Ene", "Feb", "Mar", "Abr"]
+    colores_years = ["#3498db", "#e74c3c"]  # Azul para 2025, Rojo para 2026
+    
+    x = np.arange(4)  # 4 meses
+
+    # Crear figura con Plotly
+    fig = go.Figure()
+
+    for idx, anio in enumerate(sorted(yoy.keys())):
+        valores = [yoy[anio].get(m, 0) for m in range(1, 5)]
+        color = colores_years[idx % len(colores_years)]
+
+        # Línea suave
+        if len(valores) >= 3 and sum(valores) > 0:
+            try:
+                x_smooth = np.linspace(0, 3, 50)
+                spl = make_interp_spline(x, valores, k=2)
+                y_smooth = spl(x_smooth)
+                fig.add_trace(go.Scatter(
+                    x=meses_labels,
+                    y=valores,
+                    mode='lines',
+                    name=str(anio),
+                    line=dict(shape='spline', smoothing=1.3, color=color, width=4),
+                ))
+            except Exception:
+                pass
+
+        # Puntos con valores
+        texts = [f"{v:,}" for v in valores]
+        
+        # Agregar annotations con valores
+        for i, (mes, valor) in enumerate(zip(meses_labels, valores)):
+            fig.add_annotation(
+                x=mes,
+                y=valor,
+                text=f"{valor:,}",
+                showarrow=False,
+                font=dict(size=11, color=color, fontweight='bold'),
+                bgcolor='rgba(255,255,255,0.9)',
+                bordercolor=color,
+                borderwidth=1,
+                yshift=15,
+            )
+
+        # Puntos
+        fig.add_trace(go.Scatter(
+            x=meses_labels,
+            y=valores,
+            mode='markers',
+            name=str(anio),
+            marker=dict(size=14, color=color, symbol='circle', line=dict(width=2, color='white')),
+        ))
+
+    años_label = " vs ".join(str(a) for a in sorted(yoy.keys()))
+
+    # Layout profesional
+    fig.update_layout(
+        template='plotly_white',
+        title=dict(
+            text=f"Mi Evolución — {nombre_usuario}<br><sup>{años_label} (Ene-Abr)</sup>",
+            font=dict(size=20, color='#2c3e50'),
+        ),
+        xaxis=dict(
+            title=dict(text="Mes", font=dict(size=14, color='#2c3e50')),
+            tickfont=dict(size=12, color='#2c3e50'),
+            showgrid=True,
+            gridcolor='#ecf0f1',
+        ),
+        yaxis=dict(
+            title=dict(text="N° Créditos", font=dict(size=14, color='#2c3e50')),
+            tickfont=dict(size=12, color='#2c3e50'),
+            showgrid=True,
+            gridcolor='#ecf0f1',
+            tickformat=",d",
+        ),
+        legend=dict(
+            title=dict(text="Año"),
+            font=dict(size=13, color='#2c3e50'),
+            bgcolor='rgba(255,255,255,0.8)',
+            bordercolor='#bdc3c7',
+            borderwidth=1,
+        ),
+        margin=dict(l=60, r=40, t=80, b=60),
+        width=900,
+        height=500,
+        hovermode='x unified',
+    )
+
+    # Exportar
+    buf = io.BytesIO()
+    try:
+        fig.write_image(buf, format="png", scale=2)
+        buf.seek(0)
+        media_id = _upload_media(buf.read(), config)
+        return f"__IMAGE__:{media_id}"
+    except Exception as e:
+        return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
             

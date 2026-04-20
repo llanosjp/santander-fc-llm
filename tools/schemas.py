@@ -136,6 +136,33 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "get_chart_yoy_personal",
+            "description": (
+                "Genera una gráfica comparativa Year-over-Year (YoY) PERSONAL del usuario. "
+                "Compara los créditos del MISMO usuario entre dos años (mismos meses). "
+                "Úsala cuando el usuario pida comparar 'mi evolución', 'yo mismo', "
+                "'mis mismos meses del año pasado', 'compararme con yo mismo'. "
+                "Ejemplo: 'Enero-Abril 2025 vs Enero-Abril 2026'."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "anio_from": {
+                        "type": "integer",
+                        "description": "Año inicial. Ejemplo: 2025",
+                    },
+                    "anio_to": {
+                        "type": "integer",
+                        "description": "Año final. Ejemplo: 2026",
+                    },
+                },
+                "required": ["anio_from", "anio_to"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_chart_lideres",
             "description": (
                 "Genera una gráfica de líneas (chart, imagen, visual) comparando el monto "

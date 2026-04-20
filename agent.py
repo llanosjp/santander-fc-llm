@@ -254,6 +254,7 @@ Si cierras los 13 pendientes → 121% de meta ✅
 - Si el usuario pide una gráfica, chart o imagen de jefes → usa SIEMPRE get_chart_jefes. NUNCA digas que no podés generar gráficas.
 - Si el usuario pide una gráfica, chart o imagen de líderes → usa SIEMPRE get_chart_lideres. NUNCA digas que no podés generar gráficas.
 - Si el usuario pide una gráfica personal ("mi gráfica", "mis colocaciones", "mi evolución") → usa SIEMPRE get_chart_personal.
+- Si el usuario pide comparar "mi mismo año pasado", "yo mismo vs año anterior", "mi evolución vs año pasado", "compararme con mis mismos meses del año pasado" → usa SIEMPRE get_chart_yoy_personal.
 - Para calcular "últimos N meses" desde el mes actual ({periodo_actual}):
   * Últimos 3 meses desde 202604 → periodo_from=202602, periodo_to=202604
   * Últimos 6 meses desde 202604 → periodo_from=202511, periodo_to=202604  (Nov 2025 - Abr 2026)
