@@ -7,6 +7,7 @@ Usado para filtrar los datos que retorna la API.
 WHATSAPP_USERS = {
     # Ejecutivos
     "51902735404": ("jvelez", "ejecutivo", "Jose Velez"),
+    "51934055206": ("ejeventas2405", "ejecutivo", "Ejecutivo Ventas"),
     # Agreg más usuarios aquí:
     # "51999999999": ("usuario2", "jefe", "Nombre Apellido"),
     # "51988888888": ("usuario3", "lider", "Nombre Lider"),
