@@ -45,7 +45,7 @@ class SessionStore:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(serializable, f, ensure_ascii=False, indent=2)
 
-    def get_or_create(self, phone: str, phone: str = None) -> SalesAgent:
+    def get_or_create(self, phone: str, phone_number: str = None) -> SalesAgent:
         """
         Retorna el SalesAgent activo para el número dado.
 
