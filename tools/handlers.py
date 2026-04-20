@@ -485,11 +485,8 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
     """
     Gráfica de líneas de colocaciones personales del ejecutivo.
     Muestra la evolución mes a mes de SUS créditos desembolsados.
+    Usa matplotlib en lugar de plotly para evitar dependencias de Chrome.
     """
-    import plotly.graph_objects as go
-    import numpy as np
-    from scipy.interpolate import make_interp_spline
-    
     global _current_phone
     
     config = _get_config()
@@ -530,92 +527,43 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
     # Etiquetas de períodos (formato "Ene 2026")
     periodo_labels = [_periodo_label_es(p) for p in periodos]
     
-    # Crear línea suave
-    x = np.arange(len(creditos))
+    # Crear gráfica con matplotlib
+    fig, ax = plt.subplots(figsize=(12, 6))
     
-    if len(creditos) >= 3:
-        try:
-            x_smooth = np.linspace(0, len(creditos) - 1, 50)
-            spl = make_interp_spline(x, creditos, k=min(3, len(creditos) - 1))
-            y_smooth = spl(x_smooth)
-        except Exception:
-            x_smooth = x
-            y_smooth = creditos
-    else:
-        x_smooth = x
-        y_smooth = creditos
+    # Línea principal
+    ax.plot(periodo_labels, creditos, marker='o', markersize=10, linewidth=3, 
+            color='#3498db', label=nombre_usuario, markerfacecolor='white',
+            markeredgewidth=2, markeredgecolor='#3498db')
     
-    fig = go.Figure()
+    # Área bajo la curva
+    ax.fill_between(range(len(creditos)), creditos, alpha=0.2, color='#3498db')
     
-    # Línea principal (suave)
-    fig.add_trace(go.Scatter(
-        x=periodo_labels,
-        y=creditos,
-        mode='lines',
-        name=nombre_usuario,
-        line=dict(shape='spline', smoothing=1.3, color='#3498db', width=4),
-        hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
-    ))
+    # Títulos y etiquetas
+    ax.set_title(f"Mis Colocaciones — {nombre_usuario}\n{_periodo_label_es(periodo_from)} – {_periodo_label_es(periodo_to)}", 
+                 fontsize=16, fontweight='bold', color='#2c3e50', pad=20)
+    ax.set_xlabel('Período', fontsize=12, color='#2c3e50')
+    ax.set_ylabel('N° Créditos', fontsize=12, color='#2c3e50')
     
-    # Puntos sobre la línea
-    fig.add_trace(go.Scatter(
-        x=periodo_labels,
-        y=creditos,
-        mode='markers',
-        name=nombre_usuario,
-        marker=dict(size=14, color='#3498db', symbol='circle', line=dict(width=3, color='white')),
-        hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
-        showlegend=False,
-    ))
+    # Grid y estilo
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.set_facecolor('#f8f9fa')
+    fig.patch.set_facecolor('white')
     
-    # Área bajo la curva (opcional, para dar más impacto visual)
-    fig.add_trace(go.Scatter(
-        x=periodo_labels,
-        y=creditos,
-        fill='tozeroy',
-        mode='none',
-        fillcolor='rgba(52, 152, 219, 0.1)',
-        showlegend=False,
-        hoverinfo='skip',
-    ))
+    # Rotar etiquetas del eje X si son muchas
+    if len(periodo_labels) > 8:
+        plt.xticks(rotation=45, ha='right')
     
-    fig.update_layout(
-        template='plotly_white',
-        title=dict(
-            text=f"Mis Colocaciones — {nombre_usuario}<br><sup>{_periodo_label_es(periodo_from)} – {_periodo_label_es(periodo_to)}</sup>",
-            font=dict(size=20, color='#2c3e50'),
-        ),
-        xaxis=dict(
-            title=dict(text="Período", font=dict(size=14, color='#2c3e50')),
-            tickfont=dict(size=11, color='#2c3e50'),
-            showgrid=True,
-            gridcolor='#ecf0f1',
-        ),
-        yaxis=dict(
-            title=dict(text="N° Créditos", font=dict(size=14, color='#2c3e50')),
-            tickfont=dict(size=11, color='#2c3e50'),
-            showgrid=True,
-            gridcolor='#ecf0f1',
-            tickformat=",d",
-        ),
-        legend=dict(
-            font=dict(size=12, color='#2c3e50'),
-            bgcolor='rgba(255,255,255,0.8)',
-            bordercolor='#bdc3c7',
-            borderwidth=1,
-        ),
-        margin=dict(l=60, r=40, t=80, b=60),
-        width=900,
-        height=500,
-        hovermode='x unified',
-    )
+    # Ajustar layout
+    plt.tight_layout()
     
     # Exportar a PNG
     buf = io.BytesIO()
     try:
-        fig.write_image(buf, format="png", scale=2)
+        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+        plt.close(fig)
         buf.seek(0)
         media_id = _upload_media(buf.read(), config)
         return f"__IMAGE__:{media_id}"
     except Exception as e:
+        plt.close(fig)
         return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
