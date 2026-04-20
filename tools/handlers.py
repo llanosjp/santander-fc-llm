@@ -546,15 +546,17 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
             fig.add_trace(go.Scatter(
                 x=periodo_labels,
                 y=creditos,
-                mode='lines',
+                mode='lines+markers',
                 name=nombre_usuario,
                 line=dict(shape='spline', smoothing=1.3, color='#DA291C', width=4),
+                marker=dict(size=10, color='#DA291C', symbol='circle'),
                 hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
             ))
         except Exception:
             fig.add_trace(go.Scatter(
-                x=periodo_labels, y=creditos, mode='lines',
+                x=periodo_labels, y=creditos, mode='lines+markers',
                 name=nombre_usuario, line=dict(color='#DA291C', width=4),
+                marker=dict(size=10, color='#DA291C', symbol='circle'),
                 hovertemplate='%{x}<br>%{y:,.0f} créditos<extra></extra>',
             ))
 
@@ -574,14 +576,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
             yshift=15,  # arriba del punto
         )
     
-    # Puntos marcadores (sin texto)
-    fig.add_trace(go.Scatter(
-        x=periodo_labels,
-        y=creditos,
-        mode='markers',
-        name=nombre_usuario,
-        marker=dict(size=12, color='#DA291C', symbol='circle', line=dict(width=2, color='white')),
-    ))
+    # Los puntos se muestran junto con la línea en una sola trace (lines+markers)
 
     # Layout profesional (igual a las otras gráficas)
     fig.update_layout(
@@ -707,9 +702,10 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
                 fig.add_trace(go.Scatter(
                     x=meses_labels,
                     y=valores,
-                    mode='lines',
+                    mode='lines+markers',
                     name=str(anio),
                     line=dict(shape='spline', smoothing=1.3, color=color, width=4),
+                    marker=dict(size=12, color=color, symbol='circle'),
                 ))
             except Exception:
                 pass
@@ -728,14 +724,7 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
                 yshift=15,
             )
 
-        # Puntos
-        fig.add_trace(go.Scatter(
-            x=meses_labels,
-            y=valores,
-            mode='markers',
-            name=str(anio),
-            marker=dict(size=14, color=color, symbol='circle', line=dict(width=2, color='white')),
-        ))
+        # Usar lines+markers en la primera trace (si hay datos)
 
     años_label = " vs ".join(str(a) for a in sorted(yoy.keys()))
 
