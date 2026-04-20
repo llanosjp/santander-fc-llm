@@ -106,5 +106,5 @@ Ese es el valor.
 
 ---
 
-**Contacto:** jean.llanos.gutierrez@gmail.com  
+**Contacto:** jllanos@santanderconsumer.com.pe  
 **Repo:** https://github.com/llanosjp/santander-fc-llm

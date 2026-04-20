@@ -91,4 +91,5 @@ Ejecutivo -> WhatsApp -> FastAPI -> GPT-4o Function Calling -> API Santander -> 
 
 ---
 
+**Contacto:** jllanos@santanderconsumer.com.pe  
 **Repo:** https://github.com/llanosjp/santander-fc-llm
