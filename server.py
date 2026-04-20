@@ -9,8 +9,9 @@ Endpoints:
 
 import asyncio
 from contextlib import asynccontextmanager
+from typing import Set
 
-from fastapi import FastAPI, Query, Request, Response
+from fastapi import BackgroundTasks, FastAPI, Query, Request, Response
 from fastapi.responses import PlainTextResponse
 
 from config import Config
@@ -24,6 +25,7 @@ from whatsapp.webhook import parse_incoming
 _config: Config
 _sessions: SessionStore
 _wa_client: WhatsAppClient
+_processing_messages: Set[str] = set()  # Deduplicación de mensajes en proceso
 
 
 @asynccontextmanager
@@ -74,14 +76,50 @@ async def verify_webhook(
     return Response(status_code=403)
 
 
+async def process_message_background(phone: str, text: str):
+    """
+    Procesa el mensaje en background sin bloquear el webhook.
+    """
+    message_id = f"{phone}:{text}"
+    
+    # Deduplicación: si ya estamos procesando este mensaje, ignorar
+    if message_id in _processing_messages:
+        return
+    
+    try:
+        _processing_messages.add(message_id)
+        
+        agent = _sessions.get_or_create(phone, phone_number=phone)
+        
+        # agent.chat() es bloqueante (SDK de OpenAI es sync).
+        # run_in_executor lo corre en un thread pool sin bloquear el event loop.
+        loop = asyncio.get_event_loop()
+        reply = await loop.run_in_executor(None, agent.chat, text)
+        
+        _sessions.save_history(phone, agent)
+        
+        # Enrutamiento: imagen vs texto
+        IMAGE_PREFIX = "__IMAGE__:"
+        if reply.startswith(IMAGE_PREFIX):
+            media_id = reply[len(IMAGE_PREFIX):]
+            await _wa_client.send_image(phone, media_id)
+        else:
+            await _wa_client.send_text(phone, reply)
+    
+    finally:
+        # Limpiar después de procesar
+        _processing_messages.discard(message_id)
+
+
 @app.post("/webhook")
-async def receive_message(request: Request):
+async def receive_message(request: Request, background_tasks: BackgroundTasks):
     """
     Mensajes entrantes de WhatsApp via Meta Cloud API.
 
-    Meta SIEMPRE espera HTTP 200. Si respondemos con otro código,
-    va a reintentar el envío repetidamente. Por eso retornamos 200
-    incluso cuando ignoramos el mensaje.
+    Meta SIEMPRE espera HTTP 200 RÁPIDO (<5s). Si tardamos más,
+    Meta reintenta el envío causando mensajes duplicados.
+    
+    Solución: Respondemos 200 inmediatamente y procesamos en background.
     """
     payload = await request.json()
     result = parse_incoming(payload)
@@ -91,21 +129,9 @@ async def receive_message(request: Request):
         return Response(status_code=200)
 
     phone, text = result
-    agent = _sessions.get_or_create(phone, phone_number=phone)
-
-    # agent.chat() es bloqueante (SDK de OpenAI es sync).
-    # run_in_executor lo corre en un thread pool sin bloquear el event loop.
-    loop = asyncio.get_event_loop()
-    reply = await loop.run_in_executor(None, agent.chat, text)
-
-    _sessions.save_history(phone, agent)
-
-    # Enrutamiento: imagen vs texto
-    IMAGE_PREFIX = "__IMAGE__:"
-    if reply.startswith(IMAGE_PREFIX):
-        media_id = reply[len(IMAGE_PREFIX):]
-        await _wa_client.send_image(phone, media_id)
-    else:
-        await _wa_client.send_text(phone, reply)
-
+    
+    # Agregar tarea en background y responder inmediatamente
+    background_tasks.add_task(process_message_background, phone, text)
+    
+    # Responder 200 a Meta INMEDIATAMENTE (antes de procesar el mensaje)
     return Response(status_code=200)
