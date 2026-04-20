@@ -470,7 +470,7 @@ def _get_months_in_range(periodo_from: int, periodo_to: int) -> list[int]:
     return meses
 
 
-def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
+def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = None) -> str:
     """
     Gráfica de líneas de colocaciones personales del ejecutivo.
     Muestra la evolución mes a mes de SUS créditos desembolsados.
@@ -479,6 +479,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
     Args:
         periodo_from: Período inicial (YYYYMM)
         periodo_to: Período final (YYYYMM)
+        phone: Teléfono del usuario (opcional, también usa _current_phone global)
     """
     import plotly.graph_objects as go
     from scipy.interpolate import make_interp_spline
@@ -486,8 +487,8 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
 
     global _current_phone
     
-    # Usar teléfono global o pasar explícitamente
-    phone = _current_phone
+    # Usar teléfono proporcionado o el global
+    phone = phone or _current_phone
     
     if not phone:
         return json.dumps({"error": "No se pudo identificar el usuario."})
@@ -629,7 +630,7 @@ def generate_chart_personal(periodo_from: int, periodo_to: int) -> str:
         return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
 
 
-def generate_chart_yoy_personal(anio_from: int, anio_to: int) -> str:
+def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None) -> str:
     """
     Gráfica Year-over-Year PERSONAL: compara los créditos del MISMO usuario
     entre dos años (mismos meses).
@@ -637,13 +638,14 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int) -> str:
     Args:
         anio_from: Año inicial (ej: 2025)
         anio_to: Año final (ej: 2026)
+        phone: Teléfono del usuario (opcional, también usa _current_phone global)
     """
     import plotly.graph_objects as go
     from scipy.interpolate import make_interp_spline
     import numpy as np
 
     global _current_phone
-    phone = _current_phone
+    phone = phone or _current_phone
     
     if not phone:
         return json.dumps({"error": "No se pudo identificar el usuario."})
