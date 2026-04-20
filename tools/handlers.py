@@ -566,10 +566,17 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
         texts.append(f"{c:,}")
     
     # Agregar labels directamente en la gráfica (texto sobre línea)
+    def _formatear_valor(valor):
+        """Formatea valores según reglas UX."""
+        if valor >= 1_000_000:
+            return f"{valor/1_000_000:.2f}M".rstrip('0').rstrip('.')
+        elif valor >= 1_000:
+            return f"{valor/1000:.1f}K".rstrip('0').rstrip('.')
+        else:
+            return f"{valor:.0f}"
+    
     for i, (label, credito, monto) in enumerate(zip(periodo_labels, creditos, montos)):
-        # Formatear monto en miles (ej: 1500 -> 1.5K)
-        monto_k = monto / 1000
-        monto_str = f"{monto_k:.1f}K" if monto_k >= 1 else f"{monto:.0f}"
+        monto_str = _formatear_valor(monto)
         fig.add_annotation(
             x=label,
             y=credito,
