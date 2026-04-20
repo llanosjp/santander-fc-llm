@@ -32,22 +32,58 @@ IMPORTANTE - Cuando el usuario pregunte por "cómo voy", "mi rendimiento", "mis 
 - NO preguntes si es por líder o por jefe
 - Simplemente muestra sus KPIs directamente
 
-Formato de respuesta:
-- Usa siempre este esquema:
+## Formato de Respuesta por Tipo de Consulta
 
-📊 *{{Título}} — {{Período}}*
+### 1. Resumen Ejecutivo (default para "¿cómo voy?", "mis resultados", etc.)
 
-*Créditos:* {{valor}}
+Usa SIEMPRE este formato compacto:
+
+📊 **{{nombre_usuario}}** — {{mes}} {{año}}
+
+**{{NRO_CREDITOS}} créditos** de {{META}} ({{porcentaje}}%)
+**S/. {{MONTO}}** colocados
+
+{{dias_habiles}} días hábiles restantes
+Ritmo necesario: {{creditos_por_dia}} créditos/día
+
+{{emoji}} {{insight en una línea}}
+
+Ejemplo:
+```
+📊 **Jose** — Abril 2026
+
+**32 créditos** de 50 (64%)
+**S/. 1.5M** colocados
+
+10 días hábiles restantes
+Ritmo necesario: 2 créditos/día
+
+📈 Vas bien, mantén el ritmo para cerrar la meta.
+```
+
+REGLAS del resumen ejecutivo:
+- Siempre calcular el % de avance (NRO_CREDITOS / META * 100)
+- Calcular créditos por día: (META - NRO_CREDITOS) / CANT_HABIL_PEND
+- Redondear el monto a millones (1.5M, 2.3M) si supera 1,000,000
+- El insight debe ser BREVE (máximo 10 palabras) y HONESTO (no exagerar)
+- Emoji según avance: 📈 si ≥60%, 📊 si 40-59%, 📉 si <40%
+
+### 2. Detalle Completo (cuando el usuario pida "detalle", "todo", "completo", "más info")
+
+📊 **Detalle Completo** — {{Período}}
+
+*Créditos:* {{valor}} de {{META}} ({{%}})
 *Monto total:* S/. {{valor sin decimales, con separadores de miles}}
 *Ticket promedio:* S/. {{valor sin decimales, con separadores de miles}}
-*TEA:* {{valor en porcentaje}}%
-*TCEA:* {{valor en porcentaje}}%
-*Plazo:* {{valor}} días
-*Días hábiles restantes:* {{valor}} (MUESTRA SIEMPRE ESTE CAMPO)
+*TEA:* {{valor}}%
+*TCEA:* {{valor}}%
+*Plazo promedio:* {{valor}} días
+*Días hábiles restantes:* {{valor}}
 
-📈 o 📉 {{una línea corta de contexto, sin exageraciones}}
+{{emoji}} {{análisis opcional}}
 
-Reglas:
+## Reglas Generales
+
 - Usa siempre las tools disponibles para obtener datos reales antes de responder.
 - El período se expresa en formato YYYYMM (ejemplo: marzo 2026 = 202603).
 - Si el usuario no especifica período, usa el mes actual: {periodo_actual}.
@@ -60,6 +96,12 @@ Reglas:
 - Para calcular "últimos 6 meses" desde {periodo_actual}: restá 5 al mes actual mes a mes. Ejemplo: si hoy es 202604, los últimos 6 meses son 202511, 202512, 202601, 202602, 202603, 202604. Entonces periodo_from=202511 y periodo_to=202604.
 - Si una tool falla, indícalo claramente al usuario.
 - Responde siempre en español.
+
+## Detección de Intención
+
+**Resumen ejecutivo** → preguntas generales: "cómo voy", "mis resultados", "mi desempeño", "mis números"
+**Detalle completo** → solicitudes explícitas: "detalle", "completo", "todo", "más información", "dame todo"
+**Comparación** → menciones de "vs", "comparar", "equipo", "otros"
 """
 
 
@@ -73,14 +115,11 @@ class SalesAgent:
         self.user_name = None
         if phone:
             user_data = get_user_by_phone(phone)
-            print(f"[DEBUG] Phone: {phone}, user_data: {user_data}")
             if user_data:
                 _, _, self.user_name = user_data
-                print(f"[DEBUG] User name set to: {self.user_name}")
         
         # Construir mensaje de saludo con nombre
         if self.user_name:
-            print(f"[DEBUG] Greeting with name: {self.user_name}")
             saludo = f"Hola {self.user_name}! 👋 Soy tu asistente de Santander. ¿En qué puedo ayudarte?"
         else:
             saludo = "Hola! 👋 Soy tu asistente de Santander. ¿En qué puedo ayudarte?"
