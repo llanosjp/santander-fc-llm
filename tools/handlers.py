@@ -495,32 +495,26 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
 
     config = _get_config()
 
-    # La API de Power Automate tiene un bug con rangos + filtro de usuario
-    # Solución: llamar mes por mes y combinar resultados
-    meses = _get_months_in_range(periodo_from, periodo_to)
+    # Una sola llamada con rango completo — la API devuelve todos los meses
+    raw = _call_api("TOTAL", periodo_from, periodo_to, phone=phone)
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "No se pudo parsear la respuesta de la API."})
 
-    all_registros = []
-    for mes in meses:
-        # Pasar el teléfono explícitamente a cada llamada
-        raw = _call_api("TOTAL", mes, mes, phone=phone)
-        try:
-            data = json.loads(raw)
-            if isinstance(data, dict) and "data" in data:
-                all_registros.extend(data["data"])
-            elif isinstance(data, list):
-                all_registros.extend(data)
-        except (json.JSONDecodeError, TypeError):
-            continue
+    if isinstance(data, dict) and "error" in data:
+        return raw
 
-    if not all_registros:
+    registros = data.get("data", []) if isinstance(data, dict) else data
+    if not registros:
         return json.dumps({"error": "No hay datos para el período solicitado."})
 
-    nombre_usuario = all_registros[0].get("ORI_DES_EJECUTIVO", "Ejecutivo")
+    nombre_usuario = registros[0].get("ORI_DES_EJECUTIVO", "Ejecutivo")
 
     periodos = []
     creditos = []
     montos = []  # Agregar para mostrar monto
-    for row in all_registros:
+    for row in registros:
         periodo = int(row.get("PERIODO") or 0)
         nro_creditos = int(row.get("DESEMBOLSADO") or row.get("NRO_CREDITOS") or 0)
         monto = float(row.get("MONTO") or 0)
@@ -654,24 +648,20 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
 
     config = _get_config()
 
-    # Obtener meses 1-4 (Enero-Abril) de ambos años
-    meses_consultar = []
-    for anio in [anio_from, anio_to]:
-        for mes in range(1, 5):  # Enero-Abril
-            meses_consultar.append(anio * 100 + mes)
+    # Una sola llamada con rango: Enero-Abril de ambos años
+    periodo_from = anio_from * 100 + 1
+    periodo_to = anio_to * 100 + 4
 
-    # Llamar API mes por mes
-    all_registros = []
-    for periodo in meses_consultar:
-        raw = _call_api("TOTAL", periodo, periodo, phone=phone)
-        try:
-            data = json.loads(raw)
-            if isinstance(data, dict) and "data" in data:
-                all_registros.extend(data["data"])
-            elif isinstance(data, list):
-                all_registros.extend(data)
-        except (json.JSONDecodeError, TypeError):
-            continue
+    raw = _call_api("TOTAL", periodo_from, periodo_to, phone=phone)
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return json.dumps({"error": "No se pudo parsear la respuesta de la API."})
+
+    if isinstance(data, dict) and "error" in data:
+        return raw
+
+    all_registros = data.get("data", []) if isinstance(data, dict) else data
 
     if not all_registros:
         return json.dumps({"error": "No hay datos para los años solicitados."})
