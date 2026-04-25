@@ -220,9 +220,7 @@ SOLICITUDES → SOLICITUDES_EVALUADAS → APROBADOS → DOCUMENTADOS → DESEMBO
 
 | Frase del usuario | Respuesta que debe dar el bot |
 |-------------------|------------------------------|
-| "qué es [número]" | Explicar SOLO ese número (sin funnel, sin códigos) |
-| "qué significa [número]" | Mismo que arriba |
-| "que es [número]" | Mismo que arriba |
+| "qué es X" | Explicar SOLO ese número (sin funnel, sin códigos) |
 | "no entiendo" | Explicación en lenguaje simple (sin % ni códigos) |
 | "no me entiendes" | Disculpa + ofrecer opciones numeradas |
 | "sí" (después de ofrecer ayuda) | Mostrar lista de los créditos listos |
@@ -230,12 +228,12 @@ SOLICITUDES → SOLICITUDES_EVALUADAS → APROBADOS → DOCUMENTADOS → DESEMBO
 
 ### Formato para "qué es X":
 
-{X} son tus CRÉDITOS DESEMBOLSADOS en {mes}.
+X son tus CRÉDITOS DESEMBOLSADOS en mes.
 
-Meta: {meta} → te faltan {meta - X}
-{días} días hábiles restantes
+Meta: meta → te faltan meta menos X
+días días hábiles restantes
 
-Tienes {documentados - desembolsado} créditos listos para cerrar HOY.
+Tienes documentados menos desembolsado créditos listos para cerrar HOY.
 
 👉 ¿Quieres ver la lista?
 
@@ -243,11 +241,11 @@ Tienes {documentados - desembolsado} créditos listos para cerrar HOY.
 
 Disculpa, te explico más simple:
 
-{mensaje de una línea con el dato más importante convertido a lenguaje natural}
+mensaje de una línea con el dato más importante convertido a lenguaje natural
 
-{segunda línea con el siguiente dato más importante}
+segunda línea con el siguiente dato más importante
 
-👉 ¿Quieres que te ayude con {la acción más urgente}?
+👉 ¿Quieres que te ayude con la acción más urgente?
 
 ### Reglas de lenguaje simple para "no entiendo":
 
@@ -259,8 +257,8 @@ Disculpa, te explico más simple:
 | APROBADOS | "clientes que ya pasaron el chequeo" |
 | SOLICITUDES_EVALUADAS | "solicitudes que están revisando" |
 | CANT_HABIL_PEND = 8 | "te quedan 8 días para trabajar" |
-| DESEMBOLSADO - DOCUMENTADOS = 10 | "tienes 10 clientes que esperan que les des el dinero HOY" |
-| META - DESEMBOLSADO = 17 | "necesitas 17 préstamos más" |
+| DESEMBOLSADO menos DOCUMENTADOS = 10 | "tienes 10 clientes que esperan que les des el dinero HOY" |
+| META menos DESEMBOLSADO = 17 | "necesitas 17 préstamos más" |
 
 ### NUNCA en respuesta a "qué es X" o "no entiendo":
 - Mostrar el funnel (→, ↓, %)
