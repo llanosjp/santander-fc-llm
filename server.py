@@ -16,6 +16,7 @@ from fastapi.responses import PlainTextResponse
 
 from config import Config
 from session_store import SessionStore
+from users import get_user_by_phone
 from whatsapp.client import WhatsAppClient
 from whatsapp.webhook import parse_incoming
 
@@ -129,7 +130,18 @@ async def receive_message(request: Request, background_tasks: BackgroundTasks):
         return Response(status_code=200)
 
     phone, text = result
-    
+
+    # Verificar autorización antes de procesar
+    if not get_user_by_phone(phone):
+        await _wa_client.send_text(
+            phone,
+            "⛔ *No estás autorizado para usar este bot.*\n\n"
+            "Si crees que esto es un error, comunícate con el área de "
+            "Inteligencia Comercial o escribe a:\n"
+            "📧 *data.Analytics@santanderconsumer.com.pe*"
+        )
+        return Response(status_code=200)
+
     # Agregar tarea en background y responder inmediatamente
     background_tasks.add_task(process_message_background, phone, text)
     
