@@ -7,12 +7,13 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "get_kpi_total",
+            "name": "get_kpi_creditos",
             "description": (
-                "Retorna los KPIs globales de colocación de créditos: "
-                "número de créditos, monto total y monto promedio. "
-                "Úsala cuando el usuario pregunte por el total general, "
-                "resultado global o cifras consolidadas."
+                "Retorna los KPIs de colocación de créditos del ejecutivo: "
+                "número de créditos, monto total, TEA, TCEA, plazo promedio, solicitudes, "
+                "aprobados, documentados, desembolados y meta. "
+                "Úsala cuando el usuario pregunte por sus KPIs, números, resultados, "
+                "cómo va, mi rendimiento, etc."
             ),
             "parameters": {
                 "type": "object",
@@ -33,9 +34,9 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "get_chart_yoy_personal",
+            "name": "get_grafica_yoy",
             "description": (
-                "Genera una gráfica comparativa Year-over-Year (YoY) PERSONAL del usuario. "
+                "Genera una gráfica comparativa Year-over-Year (YoY) del ejecutivo. "
                 "Compara los créditos del MISMO usuario entre dos años (mismos meses). "
                 "Úsala cuando el usuario pida comparar 'mi evolución', 'yo mismo', "
                 "'mis mismos meses del año pasado', 'compararme con yo mismo'. "
@@ -64,14 +65,14 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "get_chart_personal",
+            "name": "get_grafica_creditos",
             "description": (
-                "Genera una gráfica de líneas (chart, imagen, visual) mostrando la evolución "
-                "de MIS colocaciones personales de créditos en un rango de períodos. "
-                "Muestra la trayectoria individual del ejecutivo mes a mes. "
+                "Genera una gráfica de líneas mostrando la evolución "
+                "de las colocaciones de créditos del ejecutivo en un rango de períodos. "
+                "Muestra la trayectoria individual mes a mes. "
                 "Úsala cuando el usuario pida 'mi gráfica', 'mis colocaciones', "
                 "'mi evolución', 'mi desempeño en el tiempo', 'últimos X meses', "
-                "o cualquier referencia a SUS datos personales en formato visual."
+                "o cualquier referencia a SUS datos en formato visual."
             ),
             "parameters": {
                 "type": "object",

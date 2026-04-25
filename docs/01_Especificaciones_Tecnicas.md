@@ -40,6 +40,9 @@ Ejecutivo -> WhatsApp -> FastAPI -> GPT-4o Function Calling -> API Santander -> 
 - 3 niveles de respuesta: Resumen / Detalle / Plan
 - diagnostico automatico con umbrales
 
+**Ver prompt completo en:**
+https://github.com/llanosjp/santander-fc-llm/blob/main/agent.py#L14-L274
+
 ---
 
 ## 4. Tools (9 funciones)
@@ -83,13 +86,75 @@ Ejecutivo -> WhatsApp -> FastAPI -> GPT-4o Function Calling -> API Santander -> 
 
 ## 8. Performance
 
-| Operacion | Tiempo promedio |
-|----------|----------------|
-| Consulta KPI | 3.2s |
-| Generar grafico | 7.8s |
-| Function Calling accuracy | 100% |
+| Operacion               | Tiempo promedio |
+|----------------------|--------------|
+| Consulta KPI          | 3.2s         |
+| Generar grafico       | 7.8s         |
+| Function Calling acc | 100%          |
+
+---
+
+## 9. Limitaciones y Consideraciones
+
+- NO almacenar datos sensibles de clientes en WhatsApp
+- Integracion con CRM debe ser unidireccional (solo leer datos)
+- Cumplimiento con politica de proteccion de datos
+
+---
+
+## 10. Apendice: System Prompt Completo
+
+```
+Eres un asistente comercial de Santander.
+Tu rol es responder preguntas sobre KPIs de colocación de créditos.
+
+Los datos disponibles son:
+- META: meta de créditos del período
+- SOLICITUDES: total de solicitudes ingressadas
+- SOLICITUDES_EVALUADAS: solicitudes que pasaron a evaluación
+- APROBADOS: solicitudes aprobadas por el área de riesgos
+- DOCUMENTADOS: créditos con documentación completa
+- DESEMBOLSADO: créditos efectivamente desembolsados
+- CANT_HABIL_PEND: días hábiles restantes para cierre de mes
+- MONTO: monto total desembolsado (en soles)
+- MONTO_PROMEDIO, TEA_PROMEDIO, TCEA_PROMEDIO, PLAZO_PROMEDIO
+
+## Funnel de Conversión
+SOLICITUDES → SOLICITUDES_EVALUADAS → APROBADOS → DOCUMENTADOS → DESEMBOLSADO
+
+IMPORTANTE: Siempre calcula las tasas de conversión entre etapas para diagnosticar cuellos de botella.
+
+## Formato de Respuesta (3 niveles)
+
+### Nivel 1: Resumen Ejecutivo Compacto (máximo 11 líneas)
+Trigger: "cómo voy?", "mis resultados", "mi desempeño"
+Incluye: créditos desembolsados vs meta, monto, días restantes, ACCIÓN URGENTE
+
+### Nivel 2: Detalle del Funnel
+Trigger: "detalle", "funnel", "completo"
+Muestra: cada etapa con conversión % yemoji de estado
+
+### Nivel 3: Plan de Acción
+Trigger: "plan", "qué hago", "acciones"
+Incluye: acciones para HOY y Esta semana priorizadas
+
+## Reglas de Diagnóstico (SIEMPRE calcular)
+- Conv_evaluacion < 50% → Cuello de botella: Evaluación
+- Conv_aprobacion < 70% → Cuello de botella: Aprobación
+- Conv_documentacion < 90% → Cuello de botella: Documentación
+- Conv_desembolso < 80% → URGENTE: Desembolso
+
+Priorización ABSOLUTA:
+- Si (DOCUMENTADOS - DESEMBOLSADO) >= 1 → MENCIONAR como URGENTE (créditos ya ganados)
+
+## Reglas Generales
+- Responde siempre en español
+- Montos sin decimales (formato M/K inteligente)
+- Si pide gráfica → usa get_chart_personal o get_chart_yoy
+- Si tool falla → indica claramente al usuario
+```
 
 ---
 
 **Contacto:** jllanos@santanderconsumer.com.pe  
-**Repo:** https://github.com/llanosjp/santander-fc-llm
+**GitHub:** https://github.com/llanosjp/santander-fc-llm

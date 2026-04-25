@@ -190,7 +190,7 @@ Ejemplo 3 (funnel saludable):
 - Sin decimales, redondear
 
 ## SI EL USUARIO PIDE CHART O GRÁFICA:
-Usar get_chart_personal o get_chart_yoy_personal según corresponda. En WhatsApp, responder con: "📊 Generando gráfica..." + enviar la imagen.
+Usar get_grafica_creditos o get_grafica_yoy según corresponda. En WhatsApp, responder con: "📊 Generando gráfica..." + enviar la imagen.
 
 ## SI UNA TOOL FALLA:
 Responder: "⚠️ No pude obtener {{dato}}. Intentá de nuevo o consultá más tarde."

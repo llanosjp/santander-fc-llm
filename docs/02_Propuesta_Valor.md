@@ -63,12 +63,12 @@ Cierralos HOY y llegas a 331% de meta
 
 ## 6. Impacto Cuantitativo
 
-| Metrica | Antes | Despues | Mejora |
-|--------|-------|--------|--------|
-| Tiempo consulta | 5 min | 30 seg | -90% |
-| Frecuencia monitoreo | semanal | diario | 10x |
-|Tickets a BI | 50/semana | 10/semana | -80% |
-| Costo por consulta | $5 | $0.02 | -99.6% |
+| Metrica          | Antes        | Despues   | Mejora   |
+|-----------------|------------|----------|---------|
+| Tiempo consulta | 5 min      | 30 seg   | -90%    |
+| Frecuencia monitoreo | semanal | diario   | 10x     |
+| Tickets a BI     | 50/semana  | 10/semana| -80%    |
+| Costo por consulta | $5        | $0.02    | -99.6%  |
 
 ---
 
@@ -90,6 +90,7 @@ Cierralos HOY y llegas a 331% de meta
 - Alertas proactivas
 - Predicciones de cierre
 - Comparativas entre ejecutivos
+- *Nota: No se almacenar datos sensibles de clientes (cumplimiento PDPA)*
 
 **V3 (3-6 meses):**
 - Voz
@@ -107,4 +108,4 @@ Ese es el valor.
 ---
 
 **Contacto:** jllanos@santanderconsumer.com.pe  
-**Repo:** https://github.com/llanosjp/santander-fc-llm
+**GitHub:** https://github.com/llanosjp/santander-fc-llm

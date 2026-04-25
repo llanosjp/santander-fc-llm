@@ -10,9 +10,9 @@ from tools.handlers import (
 )
 
 FUNCTION_MAP = {
-    "get_kpi_total":        get_kpi_total,
-    "get_chart_personal":   generate_chart_personal,
-    "get_chart_yoy_personal": generate_chart_yoy_personal,
+    "get_kpi_creditos":        get_kpi_total,
+    "get_grafica_creditos":   generate_chart_personal,
+    "get_grafica_yoy": generate_chart_yoy_personal,
 }
 
 
