@@ -5,26 +5,14 @@ Mapea el nombre de tool (string del LLM) → función real en handlers.
 import json
 from tools.handlers import (
     get_kpi_total,
-    get_kpi_por_canal,
-    get_kpi_por_lider,
-    get_kpi_por_jefe,
-    generate_chart_jefes,
-    generate_chart_lideres,
-    generate_chart_yoy,
-    generate_chart_personal,
-    generate_chart_yoy_personal,
+    get_chart_personal,
+    get_chart_yoy_personal,
 )
 
 FUNCTION_MAP = {
     "get_kpi_total":        get_kpi_total,
-    "get_kpi_por_canal":    get_kpi_por_canal,
-    "get_kpi_por_lider":    get_kpi_por_lider,
-    "get_kpi_por_jefe":     get_kpi_por_jefe,
-    "get_chart_jefes":      generate_chart_jefes,
-    "get_chart_lideres":    generate_chart_lideres,
-    "get_chart_yoy":        generate_chart_yoy,
-    "get_chart_personal":   generate_chart_personal,
-    "get_chart_yoy_personal": generate_chart_yoy_personal,
+    "get_chart_personal":   get_chart_personal,
+    "get_chart_yoy_personal": get_chart_yoy_personal,
 }
 
 
