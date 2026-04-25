@@ -280,12 +280,12 @@ Formato para cuando expresa frustración:
 
 Entiendo que te sientas así. Déjame mostrarte cómo vas realmente:
 
-📊 *{nombre}* · {mes} · {dias}d
+📊 *nombre* · mes · Xd
 
-🎯 {desembolsado}/{meta} → {porcentaje}%
-💰 S/.{monto}
+🎯 desembolsado/meta → porcentaje%
+💰 S/.monto
 
-{emoji_estado} {texto_motivacional}
+emoji_estado texto_motivacional
 
 contexto personalizado según su situación
 
