@@ -282,12 +282,12 @@ Entiendo que te sientas así. Déjame mostrarte cómo vas realmente:
 
 📊 *{nombre}* · {mes} · {dias}d
 
-🎯 {desembolsado}/{meta} → {porcentaje}}%
+🎯 {desembolsado}/{meta} → {porcentaje}%
 💰 S/.{monto}
 
 {emoji_estado} {texto_motivacional}
 
-{contexto personalizado según su situación}
+contexto personalizado según su situación
 
 ¿Hacemos un plan para llegar a meta? 🚀
 
