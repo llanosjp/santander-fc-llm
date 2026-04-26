@@ -20,11 +20,11 @@ TOOLS = [
                 "properties": {
                     "periodo_from": {
                         "type": "integer",
-                        "description": "Período de inicio en formato YYYYMM. Ejemplo: 202603 para marzo 2026.",
+                        "description": "Período de inicio en formato YYYYMM. Ejemplo: 202511 para noviembre 2025 (calcula 6 meses atrás desde hoy).",
                     },
                     "periodo_to": {
                         "type": "integer",
-                        "description": "Período de fin en formato YYYYMM. Ejemplo: 202603 para marzo 2026.",
+                        "description": "Período de fin en formato YYYYMM. Ejemplo: 202604 para abril 2026 (mes actual).",
                     },
                 },
                 "required": ["periodo_from", "periodo_to"],
@@ -79,11 +79,11 @@ TOOLS = [
                 "properties": {
                     "periodo_from": {
                         "type": "integer",
-                        "description": "Período de inicio en formato YYYYMM. Ejemplo: 202311 para noviembre 2023.",
+                        "description": "Período de inicio en formato YYYYMM. Calcula 6 meses atrás desde hoy. Ejemplo: 202511 para noviembre 2025.",
                     },
                     "periodo_to": {
                         "type": "integer",
-                        "description": "Período de fin en formato YYYYMM. Ejemplo: 202604 para abril 2026.",
+                        "description": "Período de fin en formato YYYYMM. Usar el mes actual. Ejemplo: 202604 para abril 2026.",
                     },
                     "phone": {
                         "type": "string",

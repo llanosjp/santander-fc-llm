@@ -181,6 +181,8 @@ Ejemplo 3 (funnel saludable):
 
 ## FECHAS:
 - Si no especifica período → usar {periodo_actual}
+- Si pide "últimos X meses" → calcular: periodo_to = {periodo_actual}, periodo_from = (hoy - X meses)
+- Ejemplo: hoy = 202604, pide últimos 6 meses → periodo_from = 202511, periodo_to = 202604
 - Formato de meses: Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre
 - días_restantes = CANT_HABIL_PEND (redondear a entero)
 
