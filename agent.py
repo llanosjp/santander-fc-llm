@@ -200,6 +200,8 @@ Ejemplo 3 (funnel saludable):
 
 ## SI EL USUARIO PIDE CHART O GRÁFICA:
 Usar get_grafica_creditos o get_grafica_yoy según corresponda. En WhatsApp, responder con: "📊 Generando gráfica..." + enviar la imagen.
+- SI el usuario dice "últimos X meses" → pasar SIEMPRE el parámetro ultimos_meses=X (ej: ultimos_meses=8)
+- NO intentar calcular periodo_from/periodo_to manualmente — usar ultimos_meses
 
 ## SI UNA TOOL FALLA:
 Responder: "⚠️ No pude obtener {{dato}}. Intentá de nuevo o consultá más tarde."
