@@ -153,18 +153,19 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
     if not phone:
         return json.dumps({"error": "No se pudo identificar el usuario."})
 
-    # Mapa de métrica → campo en el row
+    # Mapa de métrica → campo(s) en el row
+    # Se prueba el primero; si es 0 o vacío, se prueba el segundo (fallback DESEMBOLSADO)
     metrica_campos = {
-        "creditos": ("NRO_CREDITOS", "N° Créditos"),
-        "monto":     ("MONTO",        "Soles (S/.)"),
-        "tea":       ("TEA_PROMEDIO", "TEA (%)"),
-        "tcea":      ("TCEA_PROMEDIO","TCEA (%)"),
-        "plazo":     ("PLAZO_PROMEDIO","Meses"),
+        "creditos": (["NRO_CREDITOS", "DESEMBOLSADO"], "N° Créditos"),
+        "monto":     (["MONTO"],                      "Soles (S/.)"),
+        "tea":       (["TEA_PROMEDIO"],               "TEA (%)"),
+        "tcea":      (["TCEA_PROMEDIO"],              "TCEA (%)"),
+        "plazo":     (["PLAZO_PROMEDIO"],              "Meses"),
     }
     if metrica not in metrica_campos:
-        return json.dumps({"error": f"Métrica '{metrica}' no válida. Use: creditoss, monto, tea, tcea, plazo."})
+        return json.dumps({"error": f"Métrica '{metrica}' no válida. Use: creditos, monto, tea, tcea, plazo."})
 
-    campo, label_y = metrica_campos[metrica]
+    campos, label_y = metrica_campos[metrica]
 
     raw = _call_api(periodo_from, periodo_to, phone=phone)
     try:
@@ -187,7 +188,13 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
 
     for row in registros:
         periodo = int(row.get("PERIODO") or 0)
-        valor = float(row.get(campo) or 0)
+        # Probar campos en orden; el primero con valor > 0 gana
+        valor = 0
+        for campo in campos:
+            v = float(row.get(campo) or 0)
+            if v > 0:
+                valor = v
+                break
         meta = float(row.get("META") or 0) if metrica == "creditos" else None
         periodos.append(periodo)
         valores.append(valor)
@@ -293,16 +300,16 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None,
         return json.dumps({"error": "No se pudo identificar el usuario."})
 
     metrica_campos = {
-        "creditos": ("NRO_CREDITOS", "N° Créditos"),
-        "monto":     ("MONTO",        "Soles (S/.)"),
-        "tea":       ("TEA_PROMEDIO", "TEA (%)"),
-        "tcea":      ("TCEA_PROMEDIO","TCEA (%)"),
-        "plazo":     ("PLAZO_PROMEDIO","Meses"),
+        "creditos": (["NRO_CREDITOS", "DESEMBOLSADO"], "N° Créditos"),
+        "monto":     (["MONTO"],                      "Soles (S/.)"),
+        "tea":       (["TEA_PROMEDIO"],               "TEA (%)"),
+        "tcea":      (["TCEA_PROMEDIO"],              "TCEA (%)"),
+        "plazo":     (["PLAZO_PROMEDIO"],              "Meses"),
     }
     if metrica not in metrica_campos:
         return json.dumps({"error": f"Métrica '{metrica}' no válida."})
 
-    campo, label_y = metrica_campos[metrica]
+    campos, label_y = metrica_campos[metrica]
 
     # Rango: Enero-Abril de ambos años
     periodo_from = anio_from * 100 + 1
@@ -327,7 +334,13 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None,
         periodo = int(row.get("PERIODO") or 0)
         anio = periodo // 100
         mes = periodo % 100
-        valor = float(row.get(campo) or 0)
+        # Probar campos en orden; el primero con valor > 0 gana
+        valor = 0
+        for c in campos:
+            v = float(row.get(c) or 0)
+            if v > 0:
+                valor = v
+                break
 
         if anio_from <= anio <= anio_to and 1 <= mes <= 4:
             yoy.setdefault(anio, {})[mes] = valor
