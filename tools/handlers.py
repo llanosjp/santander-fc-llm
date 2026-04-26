@@ -134,10 +134,15 @@ def _periodo_label_es(periodo: int) -> str:
     return f"{meses[month - 1]} {year}"
 
 
-def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = None) -> str:
+def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = None, metrica: str = "creditos") -> str:
     """
     Gráfica de líneas de colocaciones personales del ejecutivo.
-    Muestra la evolución mes a mes de SUS créditos desembolsados.
+    Muestra la evolución mes a mes con línea suave.
+
+    Args:
+        metrica: "creditos" | "monto" | "tea" | "tcea" | "plazo"
+                 - "creditos" muestra NRO_CREDITOS + META (línea punteada)
+                 - Las demás muestran la métrica sola
     """
     from scipy.interpolate import make_interp_spline
     import numpy as np
@@ -147,6 +152,19 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
 
     if not phone:
         return json.dumps({"error": "No se pudo identificar el usuario."})
+
+    # Mapa de métrica → campo en el row
+    metrica_campos = {
+        "creditos": ("NRO_CREDITOS", "N° Créditos"),
+        "monto":     ("MONTO",        "Soles (S/.)"),
+        "tea":       ("TEA_PROMEDIO", "TEA (%)"),
+        "tcea":      ("TCEA_PROMEDIO","TCEA (%)"),
+        "plazo":     ("PLAZO_PROMEDIO","Meses"),
+    }
+    if metrica not in metrica_campos:
+        return json.dumps({"error": f"Métrica '{metrica}' no válida. Use: creditoss, monto, tea, tcea, plazo."})
+
+    campo, label_y = metrica_campos[metrica]
 
     raw = _call_api(periodo_from, periodo_to, phone=phone)
     try:
@@ -164,47 +182,59 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
     nombre_usuario = registros[0].get("ORI_DES_EJECUTIVO", "Ejecutivo")
 
     periodos = []
-    creditos = []
+    valores = []
+    metas = []
+
     for row in registros:
         periodo = int(row.get("PERIODO") or 0)
-        nro_creditos = int(row.get("DESEMBOLSADO") or row.get("NRO_CREDITOS") or 0)
+        valor = float(row.get(campo) or 0)
+        meta = float(row.get("META") or 0) if metrica == "creditos" else None
         periodos.append(periodo)
-        creditos.append(nro_creditos)
+        valores.append(valor)
+        metas.append(meta)
 
-    if not creditos or sum(creditos) == 0:
-        return json.dumps({"error": "No hay colocaciones registradas en el período."})
+    if not valores or sum(valores) == 0:
+        return json.dumps({"error": "No hay datos para el período solicitado."})
 
     periodo_labels = [_periodo_label_es(p) for p in periodos]
 
-    # Gráfica con matplotlib
     fig, ax = plt.subplots(figsize=(10, 5.5))
+    x = np.arange(len(valores))
 
-    x = np.arange(len(creditos))
-
-    # Línea suave
-    if len(creditos) >= 3:
+    # Línea principal (suave)
+    color_principal = '#DA291C'
+    if len(valores) >= 3:
         try:
-            x_smooth = np.linspace(0, len(creditos) - 1, 100)
-            spl = make_interp_spline(x, creditos, k=min(3, len(creditos) - 1))
+            x_smooth = np.linspace(0, len(valores) - 1, 100)
+            spl = make_interp_spline(x, valores, k=min(3, len(valores) - 1))
             y_smooth = spl(x_smooth)
-            ax.plot(x_smooth, y_smooth, linewidth=3, color='#DA291C', zorder=2)
-            ax.fill_between(x_smooth, y_smooth, alpha=0.15, color='#DA291C', zorder=1)
+            ax.plot(x_smooth, y_smooth, linewidth=3, color=color_principal, zorder=2)
+            ax.fill_between(x_smooth, y_smooth, alpha=0.15, color=color_principal, zorder=1)
         except Exception:
-            ax.plot(x, creditos, linewidth=3, color='#DA291C', zorder=2)
+            ax.plot(x, valores, linewidth=3, color=color_principal, zorder=2)
     else:
-        ax.plot(x, creditos, linewidth=3, color='#DA291C', zorder=2)
+        ax.plot(x, valores, linewidth=3, color=color_principal, zorder=2)
 
-    ax.scatter(x, creditos, s=120, color='#DA291C', edgecolor='white',
+    ax.scatter(x, valores, s=120, color=color_principal, edgecolor='white',
                linewidth=2.5, zorder=3)
 
+    # Meta (solo para créditos) — línea punteada
+    if metrica == "creditos" and metas and sum(m for m in metas if m) > 0:
+        ax.plot(x, metas, linewidth=2.5, color='#1A1A1A', linestyle='--',
+                zorder=2, label='Meta')
+        ax.scatter(x, metas, s=80, color='#1A1A1A', edgecolor='white',
+                  linewidth=2, zorder=3, marker='D')
+
     # Títulos
-    ax.text(0.5, 1.06, f"Colocaciones de {nombre_usuario}", transform=ax.transAxes,
-            fontsize=16, fontweight='bold', color='#2c3e50', ha='center')
+    metric_labels = {"creditos": "Colocaciones", "monto": "Monto Desbursado",
+                     "tea": "TEA Promedio", "tcea": "TCEA Promedio", "plazo": "Plazo Promedio"}
+    ax.text(0.5, 1.06, f"{metric_labels.get(metrica, metrica)} de {nombre_usuario}",
+            transform=ax.transAxes, fontsize=16, fontweight='bold', color='#2c3e50', ha='center')
     ax.text(0.5, 1.02, f"{_periodo_label_es(periodo_from)} – {_periodo_label_es(periodo_to)}",
             transform=ax.transAxes, fontsize=11, color='#7f8c8d', ha='center')
 
     ax.set_xlabel('Período', fontsize=12, color='#2c3e50')
-    ax.set_ylabel('N° Créditos', fontsize=12, color='#2c3e50')
+    ax.set_ylabel(label_y, fontsize=12, color='#2c3e50')
 
     ax.grid(True, alpha=0.25, linestyle='-', linewidth=0.5, color='#ecf0f1', zorder=0)
     ax.set_axisbelow(True)
@@ -214,10 +244,17 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
     ax.set_xticks(x)
     ax.set_xticklabels(periodo_labels, fontsize=10, color='#2c3e50')
     ax.tick_params(axis='y', labelsize=10, colors='#2c3e50')
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f'{int(y):,}'))
+
+    if metrica == "monto":
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f'S/. {int(y/1000)}K' if y >= 1000 else f'{int(y):,}'))
+    else:
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f'{int(y):,}'))
 
     if len(periodo_labels) > 8:
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
+
+    if metrica == "creditos" and metas and sum(m for m in metas if m) > 0:
+        ax.legend(loc='upper left', fontsize=10, framealpha=0.9, facecolor='white', edgecolor='#bdc3c7')
 
     for spine in ax.spines.values():
         spine.set_color('#bdc3c7')
@@ -238,10 +275,13 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
         return json.dumps({"error": f"No se pudo generar la imagen: {e}"})
 
 
-def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None) -> str:
+def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None, metrica: str = "creditos") -> str:
     """
-    Gráfica Year-over-Year PERSONAL: compara los créditos del MISMO usuario
-    entre dos años (mismos meses).
+    Gráfica Year-over-Year PERSONAL: compara los créditos (u otra métrica)
+    del MISMO usuario entre dos años (mismos meses).
+
+    Args:
+        metrica: "creditos" | "monto" | "tea" | "tcea" | "plazo"
     """
     from scipy.interpolate import make_interp_spline
     import numpy as np
@@ -251,6 +291,18 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
 
     if not phone:
         return json.dumps({"error": "No se pudo identificar el usuario."})
+
+    metrica_campos = {
+        "creditos": ("NRO_CREDITOS", "N° Créditos"),
+        "monto":     ("MONTO",        "Soles (S/.)"),
+        "tea":       ("TEA_PROMEDIO", "TEA (%)"),
+        "tcea":      ("TCEA_PROMEDIO","TCEA (%)"),
+        "plazo":     ("PLAZO_PROMEDIO","Meses"),
+    }
+    if metrica not in metrica_campos:
+        return json.dumps({"error": f"Métrica '{metrica}' no válida."})
+
+    campo, label_y = metrica_campos[metrica]
 
     # Rango: Enero-Abril de ambos años
     periodo_from = anio_from * 100 + 1
@@ -270,21 +322,21 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
         return json.dumps({"error": "No hay datos para los años solicitados."})
 
     # Agrupar por año y mes
-    yoy: dict[int, dict[int, int]] = {}
+    yoy: dict[int, dict[int, float]] = {}
     for row in registros:
         periodo = int(row.get("PERIODO") or 0)
         anio = periodo // 100
         mes = periodo % 100
-        creditos = int(row.get("DESEMBOLSADO") or row.get("NRO_CREDITOS") or 0)
+        valor = float(row.get(campo) or 0)
 
         if anio_from <= anio <= anio_to and 1 <= mes <= 4:
-            yoy.setdefault(anio, {})[mes] = creditos
+            yoy.setdefault(anio, {})[mes] = valor
 
     if not yoy:
         return json.dumps({"error": "No hay datos para comparar."})
 
     meses_labels = ["Ene", "Feb", "Mar", "Abr"]
-    colores_years = ["#DA291C", "#1A1A1A"]  # Santander red 2025, negro 2026
+    colores_years = ["#DA291C", "#1A1A1A"]
 
     x = np.arange(4)
 
@@ -308,14 +360,16 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
                    linewidth=2.5, zorder=3, label=str(anio))
 
     años_label = " vs ".join(str(a) for a in sorted(yoy.keys()))
+    metric_labels = {"creditos": "Colocaciones", "monto": "Monto Desbursado",
+                     "tea": "TEA Promedio", "tcea": "TCEA Promedio", "plazo": "Plazo Promedio"}
 
-    ax.text(0.5, 1.06, f"Comparativa Year-over-Year — {años_label}", transform=ax.transAxes,
+    ax.text(0.5, 1.06, f"Comparativa YoY — {años_label}", transform=ax.transAxes,
             fontsize=16, fontweight='bold', color='#2c3e50', ha='center')
-    ax.text(0.5, 1.02, "N° Créditos por Mes", transform=ax.transAxes,
+    ax.text(0.5, 1.02, metric_labels.get(metrica, metrica), transform=ax.transAxes,
             fontsize=11, color='#7f8c8d', ha='center')
 
     ax.set_xlabel('Mes', fontsize=12, color='#2c3e50')
-    ax.set_ylabel('N° Créditos', fontsize=12, color='#2c3e50')
+    ax.set_ylabel(label_y, fontsize=12, color='#2c3e50')
 
     ax.grid(True, alpha=0.25, linestyle='-', linewidth=0.5, color='#ecf0f1', zorder=0)
     ax.set_axisbelow(True)
@@ -325,7 +379,11 @@ def generate_chart_yoy_personal(anio_from: int, anio_to: int, phone: str = None)
     ax.set_xticks(x)
     ax.set_xticklabels(meses_labels, fontsize=10, color='#2c3e50')
     ax.tick_params(axis='y', labelsize=10, colors='#2c3e50')
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f'{int(y):,}'))
+
+    if metrica == "monto":
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f'S/. {int(y/1000)}K' if y >= 1000 else f'{int(y):,}'))
+    else:
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f'{int(y):,}'))
 
     ax.legend(loc='upper left', fontsize=10, framealpha=0.9,
               facecolor='white', edgecolor='#bdc3c7')

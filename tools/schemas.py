@@ -34,13 +34,52 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "get_grafica_creditos",
+            "description": (
+                "Genera una gráfica de líneas mostrando la evolución "
+                "de las colocaciones del ejecutivo en un rango de períodos. "
+                "Muestra la trayectoria individual mes a mes. "
+                "Úsala cuando el usuario pida 'mi gráfica', 'mis colocaciones', "
+                "'mi evolución', 'mi desempeño en el tiempo', 'últimos X meses', "
+                "o cualquier referencia a SUS datos en formato visual. "
+                "Para 'créditos' muestra además la META como línea punteada. "
+                "Métricas disponibles: creditos (default), monto, tea, tcea, plazo."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "periodo_from": {
+                        "type": "integer",
+                        "description": "Período de inicio en formato YYYYMM. Calcula X meses atrás desde hoy. Ejemplo: 202511 para noviembre 2025.",
+                    },
+                    "periodo_to": {
+                        "type": "integer",
+                        "description": "Período de fin en formato YYYYMM. Usar el mes actual. Ejemplo: 202604 para abril 2026.",
+                    },
+                    "phone": {
+                        "type": "string",
+                        "description": "Número de teléfono del usuario con código de país. Ejemplo: 51902735404",
+                    },
+                    "metrica": {
+                        "type": "string",
+                        "enum": ["creditos", "monto", "tea", "tcea", "plazo"],
+                        "description": "Qué métrica graficar. Default: 'creditos'. 'creditos' incluye línea de META.",
+                    },
+                },
+                "required": ["periodo_from", "periodo_to"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_grafica_yoy",
             "description": (
                 "Genera una gráfica comparativa Year-over-Year (YoY) del ejecutivo. "
-                "Compara los créditos del MISMO usuario entre dos años (mismos meses). "
+                "Compara la misma métrica del MISMO usuario entre dos años (mismos meses). "
                 "Úsala cuando el usuario pida comparar 'mi evolución', 'yo mismo', "
                 "'mis mismos meses del año pasado', 'compararme con yo mismo'. "
-                "Ejemplo: 'Enero-Abril 2025 vs Enero-Abril 2026'."
+                "Métricas disponibles: creditos (default), monto, tea, tcea, plazo."
             ),
             "parameters": {
                 "type": "object",
@@ -57,40 +96,13 @@ TOOLS = [
                         "type": "string",
                         "description": "Número de teléfono del usuario con código de país. Ejemplo: 51902735404",
                     },
+                    "metrica": {
+                        "type": "string",
+                        "enum": ["creditos", "monto", "tea", "tcea", "plazo"],
+                        "description": "Qué métrica graficar. Default: 'creditos'.",
+                    },
                 },
                 "required": ["anio_from", "anio_to"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_grafica_creditos",
-            "description": (
-                "Genera una gráfica de líneas mostrando la evolución "
-                "de las colocaciones de créditos del ejecutivo en un rango de períodos. "
-                "Muestra la trayectoria individual mes a mes. "
-                "Úsala cuando el usuario pida 'mi gráfica', 'mis colocaciones', "
-                "'mi evolución', 'mi desempeño en el tiempo', 'últimos X meses', "
-                "o cualquier referencia a SUS datos en formato visual."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "periodo_from": {
-                        "type": "integer",
-                        "description": "Período de inicio en formato YYYYMM. Calcula 6 meses atrás desde hoy. Ejemplo: 202511 para noviembre 2025.",
-                    },
-                    "periodo_to": {
-                        "type": "integer",
-                        "description": "Período de fin en formato YYYYMM. Usar el mes actual. Ejemplo: 202604 para abril 2026.",
-                    },
-                    "phone": {
-                        "type": "string",
-                        "description": "Número de teléfono del usuario con código de país. Ejemplo: 51902735404",
-                    },
-                },
-                "required": ["periodo_from", "periodo_to"],
             },
         },
     },
