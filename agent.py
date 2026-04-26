@@ -189,7 +189,7 @@ Ejemplo 3 (funnel saludable):
   - "últimos 6 meses" → periodo_from=202511, periodo_to=202604
   - "últimos 12 meses" → periodo_from=202505, periodo_to=202604
   - "últimos 3 meses" → periodo_from=202602, periodo_to=202604
-- IMPORTANTE: NO calcular basado en elaño actual nomas. SIEMPRE usar la fórmula exacta de arriba.
+- IMPORTANTE: NO calcular basado en el año actual nomas. SIEMPRE usar la fórmula exacta de arriba.
 - Formato de meses: Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre
 - días_restantes = CANT_HABIL_PEND (redondear a entero)
 
