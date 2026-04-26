@@ -50,11 +50,11 @@ TOOLS = [
                 "properties": {
                     "periodo_from": {
                         "type": "integer",
-                        "description": "Período de inicio en formato YYYYMM. Calcula X meses atrás desde hoy. Ejemplo: 202511 para noviembre 2025.",
+                        "description": "Período de inicio en formato YYYYMM. Ignorado si ultimos_meses está presente.",
                     },
                     "periodo_to": {
                         "type": "integer",
-                        "description": "Período de fin en formato YYYYMM. Usar el mes actual. Ejemplo: 202604 para abril 2026.",
+                        "description": "Período de fin en formato YYYYMM. Ignorado si ultimos_meses está presente.",
                     },
                     "phone": {
                         "type": "string",
@@ -64,6 +64,10 @@ TOOLS = [
                         "type": "string",
                         "enum": ["creditos", "monto", "tea", "tcea", "plazo"],
                         "description": "Qué métrica graficar. Default: 'creditos'. 'creditos' incluye línea de META.",
+                    },
+                    "ultimos_meses": {
+                        "type": "integer",
+                        "description": "Si está presente, calcula periodo_from/to automáticamente desde hoy. Ejemplo: 6 para últimos 6 meses.",
                     },
                 },
                 "required": ["periodo_from", "periodo_to"],

@@ -134,7 +134,7 @@ def _periodo_label_es(periodo: int) -> str:
     return f"{meses[month - 1]} {year}"
 
 
-def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = None, metrica: str = "creditos") -> str:
+def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = None, metrica: str = "creditos", ultimos_meses: int = None) -> str:
     """
     Gráfica de líneas de colocaciones personales del ejecutivo.
     Muestra la evolución mes a mes con línea suave.
@@ -143,12 +143,24 @@ def generate_chart_personal(periodo_from: int, periodo_to: int, phone: str = Non
         metrica: "creditos" | "monto" | "tea" | "tcea" | "plazo"
                  - "creditos" muestra NRO_CREDITOS + META (línea punteada)
                  - Las demás muestran la métrica sola
+        ultimos_meses: si está presente, calcula periodo_from/to desde hoy
+                       ignorando los valores de periodo_from/periodo_to
     """
+    from datetime import datetime
+    from dateutil.relativedelta import relativedelta
     from scipy.interpolate import make_interp_spline
     import numpy as np
 
     global _current_phone
     phone = phone or _current_phone
+
+    # Si ultimos_meses está presente, calcular fechas desde hoy
+    if ultimos_meses is not None and ultimos_meses > 0:
+        hoy = datetime.now()
+        periodo_to_calc = int(hoy.strftime("%Y%m"))
+        periodo_from_calc = int((hoy - relativedelta(months=ultimos_meses)).strftime("%Y%m"))
+        periodo_from = periodo_from_calc
+        periodo_to = periodo_to_calc
 
     if not phone:
         return json.dumps({"error": "No se pudo identificar el usuario."})
