@@ -64,10 +64,7 @@ def _call_api(dimension: str, periodo_from: int, periodo_to: int, phone: str = N
     payload = {
         "PERIODOFROM":  periodo_from,
         "PERIODOTO":    periodo_to,
-        "USUARIO": filtros.get("USUARIO"),
-        "FILTRO_LIDER": filtros.get("FILTRO_LIDER"),
-        "FILTRO_JEFE": filtros.get("FILTRO_JEFE"),
-        "FILTRO_EJECUTIVO": filtros.get("FILTRO_EJECUTIVO"),
+        "CELULAR": phone,
     }
     
     try:
